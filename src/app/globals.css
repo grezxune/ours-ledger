@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f7f2;
+  --foreground: #152b28;
+  --surface: #ffffff;
+  --surface-muted: #dbe9dd;
+  --line: #b7cdc0;
+  --accent: #2d7c57;
+  --accent-strong: #195d3e;
+  --font-sans: var(--font-manrope);
+  --font-serif: var(--font-fraunces);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f1714;
+    --foreground: #ecf5ef;
+    --surface: #16211c;
+    --surface-muted: #20322a;
+    --line: #3c5549;
+    --accent: #69b485;
+    --accent-strong: #8acda3;
   }
 }
 
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 10% 10%, color-mix(in oklab, var(--surface-muted) 30%, transparent), transparent 35%),
+    radial-gradient(circle at 90% 90%, color-mix(in oklab, var(--accent) 15%, transparent), transparent 40%),
+    var(--background);
+}
+
+* {
+  box-sizing: border-box;
 }
