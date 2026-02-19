@@ -1,13 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f7f2;
-  --foreground: #152b28;
+  --background: #f7fbff;
+  --foreground: #16324a;
   --surface: #ffffff;
-  --surface-muted: #dbe9dd;
-  --line: #b7cdc0;
-  --accent: #2d7c57;
-  --accent-strong: #195d3e;
+  --surface-muted: #e7f2fb;
+  --line: #c6daeb;
+  --accent: #0ea5e9;
+  --accent-strong: #0284c7;
+  --parallax-scroll: 0px;
   --font-sans: var(--font-manrope);
   --font-serif: var(--font-fraunces);
 }
@@ -26,13 +27,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f1714;
-    --foreground: #ecf5ef;
-    --surface: #16211c;
-    --surface-muted: #20322a;
-    --line: #3c5549;
-    --accent: #69b485;
-    --accent-strong: #8acda3;
+    --background: #14253a;
+    --foreground: #f0f7ff;
+    --surface: #1c3048;
+    --surface-muted: #2a4564;
+    --line: #48698f;
+    --accent: #7dd3fc;
+    --accent-strong: #bae6fd;
   }
 }
 
@@ -44,12 +45,132 @@ body {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 10% 10%, color-mix(in oklab, var(--surface-muted) 30%, transparent), transparent 35%),
-    radial-gradient(circle at 90% 90%, color-mix(in oklab, var(--accent) 15%, transparent), transparent 40%),
-    var(--background);
+  background: var(--background);
 }
 
 * {
   box-sizing: border-box;
+}
+
+.global-parallax {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.parallax-base,
+.parallax-orb,
+.parallax-grid {
+  position: absolute;
+  inset: -16%;
+}
+
+.parallax-base {
+  background:
+    radial-gradient(circle at 14% 18%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 34%),
+    radial-gradient(circle at 82% 12%, color-mix(in oklab, var(--accent-strong) 18%, transparent), transparent 36%),
+    radial-gradient(circle at 52% 84%, color-mix(in oklab, var(--surface-muted) 52%, transparent), transparent 52%);
+  transform: translate3d(0, calc(var(--parallax-scroll) * -0.04), 0);
+}
+
+.parallax-orb {
+  filter: blur(3px);
+  will-change: transform;
+}
+
+.parallax-orb-one {
+  background: radial-gradient(circle at 22% 28%, color-mix(in oklab, var(--accent) 26%, transparent), transparent 24%);
+  transform: translate3d(-3%, calc(var(--parallax-scroll) * -0.1), 0);
+  animation: floatDriftA 22s ease-in-out infinite alternate;
+}
+
+.parallax-orb-two {
+  background: radial-gradient(circle at 76% 35%, color-mix(in oklab, var(--accent-strong) 24%, transparent), transparent 22%);
+  transform: translate3d(2%, calc(var(--parallax-scroll) * -0.07), 0);
+  animation: floatDriftB 28s ease-in-out infinite alternate;
+}
+
+.parallax-orb-three {
+  background: radial-gradient(circle at 58% 72%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 26%);
+  transform: translate3d(0, calc(var(--parallax-scroll) * -0.13), 0);
+  animation: floatDriftC 32s ease-in-out infinite alternate;
+}
+
+.parallax-grid {
+  opacity: 0.33;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--line) 36%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--line) 30%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black 42%, transparent 82%);
+  transform: translate3d(0, calc(var(--parallax-scroll) * -0.03), 0);
+}
+
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-up {
+  animation: revealUp 0.55s ease-out both;
+}
+
+.reveal-delay-1 {
+  animation-delay: 0.08s;
+}
+
+.reveal-delay-2 {
+  animation-delay: 0.16s;
+}
+
+@keyframes floatDriftA {
+  from {
+    transform: translate3d(-3%, calc(var(--parallax-scroll) * -0.1), 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, calc(var(--parallax-scroll) * -0.1 - 2.2%), 0) scale(1.06);
+  }
+}
+
+@keyframes floatDriftB {
+  from {
+    transform: translate3d(2%, calc(var(--parallax-scroll) * -0.07), 0) scale(1.02);
+  }
+  to {
+    transform: translate3d(-2%, calc(var(--parallax-scroll) * -0.07 - 2.6%), 0) scale(1.09);
+  }
+}
+
+@keyframes floatDriftC {
+  from {
+    transform: translate3d(0, calc(var(--parallax-scroll) * -0.13), 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, calc(var(--parallax-scroll) * -0.13 - 3.1%), 0) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-up,
+  .reveal-delay-1,
+  .reveal-delay-2,
+  .parallax-orb-one,
+  .parallax-orb-two,
+  .parallax-orb-three {
+    animation: none;
+  }
+
+  .parallax-base,
+  .parallax-orb,
+  .parallax-grid {
+    transform: none;
+  }
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
+import { GlobalParallaxBackground } from "@/components/layout/global-parallax-background";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -18,7 +19,15 @@ export const metadata: Metadata = {
     template: "%s | Ours Ledger",
   },
   description:
-    "A couples-first budgeting app for households that share all money, decisions, and visibility.",
+    "A shared-entity finance app for households and businesses with collaborative roles and full visibility.",
+  icons: {
+    icon: [
+      { url: "/branding/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/branding/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/branding/favicon-32x32.png",
+    apple: "/branding/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -29,9 +38,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${manrope.variable} ${fraunces.variable} bg-background text-foreground antialiased`}
+        className={`${manrope.variable} ${fraunces.variable} relative isolate bg-background text-foreground antialiased`}
       >
-        {children}
+        <GlobalParallaxBackground />
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );

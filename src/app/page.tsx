@@ -1,82 +1,137 @@
-import { PRODUCT_MOTTO, PRODUCT_NAME } from "../lib/household-principles";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Check, Eye, ReceiptText, Users, Wallet } from "lucide-react";
+import { AuditEventList } from "@/components/audit-event-list";
+import { AppShell } from "@/components/layout/app-shell";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { MarketingLanding } from "@/components/marketing/marketing-landing";
+import { getAuthSession, requireAuthSession } from "@/lib/auth/session";
+import { listAuditEvents } from "@/lib/data/audit";
+import { listEntitiesForUser } from "@/lib/data/entities";
+import { acceptInvitation, listUserInvitations } from "@/lib/data/invitations";
+import { ensureUser } from "@/lib/data/users";
 
-const productPillars = [
-  {
-    title: "One Household Ledger",
-    summary:
-      "All linked accounts, balances, and transactions sit in one shared source of truth.",
-  },
-  {
-    title: "Zero-Based at the Core",
-    summary:
-      "Every dollar gets a job before the month starts so both partners align on priorities.",
-  },
-  {
-    title: "Collaboration, Not Permissions",
-    summary:
-      "Both adults have equal visibility and full editing rights by default.",
-  },
-];
+async function acceptInviteAction(invitationId: string) {
+  "use server";
 
-const roadmapPreview = [
-  "Household account linking + shared onboarding",
-  "Shared budgeting workflow with weekly review rituals",
-  "Shared transaction feed with rule-based categorization",
-  "Subscription insights, bill calendar, and cash-flow forecasts",
-  "Goals, debt payoff, and net worth dashboards",
-];
+  const session = await requireAuthSession();
+  const email = session.user?.email?.toLowerCase();
+  if (!email) {
+    redirect("/signin");
+  }
+
+  await acceptInvitation(email, invitationId);
+  redirect("/");
+}
 
 /**
- * Marketing placeholder for the initial project scaffold.
+ * Authenticated workspace home with entity index and pending invites.
  */
-export default function Home() {
+export default async function Home() {
+  const session = await getAuthSession();
+  if (!session?.user?.email) {
+    return (
+      <AppShell session={session}>
+        <MarketingLanding />
+      </AppShell>
+    );
+  }
+
+  const userEmail = session.user.email.toLowerCase();
+  await ensureUser(userEmail, session.user.name);
+  const [entities, invites, audits] = await Promise.all([
+    listEntitiesForUser(userEmail),
+    listUserInvitations(userEmail),
+    listAuditEvents(userEmail, 8),
+  ]);
+  const entityLinkClass = "inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm";
+
   return (
-    <main className="min-h-screen px-4 py-10 sm:px-8 sm:py-14">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 rounded-3xl border border-line/70 bg-surface/80 p-6 shadow-xl shadow-black/5 backdrop-blur sm:p-10">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-serif text-sm uppercase tracking-[0.2em] text-accent-strong">
-              {PRODUCT_NAME}
-            </p>
-            <h1 className="mt-2 font-serif text-3xl leading-tight sm:text-5xl">
-              {PRODUCT_MOTTO}
-            </h1>
-          </div>
-          <p className="max-w-sm rounded-2xl border border-line bg-surface-muted/60 px-4 py-3 text-sm leading-relaxed">
-            Couples-first money management for households that share everything.
-          </p>
-        </header>
+    <AppShell session={session}>
+      <div className="grid gap-5 lg:grid-cols-3">
+        <Card title="Your Entities" className="lg:col-span-2">
+          {entities.length === 0 ? (
+            <p className="text-sm text-foreground/80">No entities yet. Create your first household or business.</p>
+          ) : (
+            <ul className="grid gap-3">
+              {entities.map(({ entity, membership }) => (
+                <li key={entity.id} className="rounded-xl border border-line bg-surface p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="font-medium">{entity.name}</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-foreground/70">
+                        {entity.type} · {membership.role}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Link aria-label={`Open ${entity.name} overview`} className={entityLinkClass} href={`/entity/${entity.id}`}>
+                        <Eye aria-hidden className="size-4" />
+                        View
+                      </Link>
+                      <Link
+                        aria-label={`Open ${entity.name} budget`}
+                        className={entityLinkClass}
+                        href={`/entity/${entity.id}/budget`}
+                      >
+                        <Wallet aria-hidden className="size-4" />
+                        Budget
+                      </Link>
+                      <Link
+                        aria-label={`Open ${entity.name} transactions`}
+                        className={entityLinkClass}
+                        href={`/entity/${entity.id}/transactions`}
+                      >
+                        <ReceiptText aria-hidden className="size-4" />
+                        Transactions
+                      </Link>
+                      <Link
+                        aria-label={`Open ${entity.name} members`}
+                        className={entityLinkClass}
+                        href={`/entity/${entity.id}/members`}
+                      >
+                        <Users aria-hidden className="size-4" />
+                        Members
+                      </Link>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          {productPillars.map((pillar) => (
-            <article
-              key={pillar.title}
-              className="rounded-2xl border border-line/80 bg-surface p-5"
-            >
-              <h2 className="font-serif text-xl">{pillar.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-foreground/80">
-                {pillar.summary}
-              </p>
-            </article>
-          ))}
-        </section>
-
-        <section className="rounded-2xl border border-line/80 bg-surface-muted/55 p-5">
-          <h2 className="font-serif text-2xl">Roadmap Preview</h2>
-          <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-            {roadmapPreview.map((item) => (
-              <li key={item} className="rounded-xl border border-line/70 bg-surface/80 px-3 py-2">
-                {item}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-sm text-foreground/80">
-            Full requirements and market-derived feature roadmap live in
-            {" "}
-            <code>prds/couples-shared-budgeting-core.md</code>.
-          </p>
-        </section>
+        <Card title="Pending Invites">
+          {invites.length === 0 ? (
+            <p className="text-sm text-foreground/80">No pending invitations.</p>
+          ) : (
+            <ul className="space-y-3">
+              {invites.map((invite) => (
+                <li key={invite.id} className="rounded-xl border border-line p-3 text-sm">
+                  <p>Entity: {invite.entityId}</p>
+                  <p>Role: {invite.role}</p>
+                  <form action={acceptInviteAction.bind(null, invite.id)} className="mt-2">
+                    <Button ariaLabel="Accept invitation" startIcon={<Check className="size-4" />} type="submit">
+                      Accept Invite
+                    </Button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
       </div>
-    </main>
+
+      <Card title="Recent Audit Events">
+        <AuditEventList emptyMessage="No audit events recorded yet." events={audits} />
+        <Link
+          aria-label="Open all audits"
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm"
+          href="/audits"
+        >
+          View All Audits
+        </Link>
+      </Card>
+    </AppShell>
   );
 }

@@ -1,0 +1,243 @@
+---
+title: Entity Budget Builder
+created: 2026-02-19
+status: draft
+owner: Tommy
+log:
+  - 2026-02-19: Initial requirements documented for entity-level budget planning (income sources + recurring expenses).
+  - 2026-02-19: Defined v1 scope as planning-only (separate from transactions and Plaid actuals).
+  - 2026-02-19: Expanded requirements for expected remaining money, weekly/monthly/yearly periods, and entity section navigation (budget/transactions/members) with mobile-first behavior.
+  - 2026-02-19: Added paid-from account requirements for recurring expenses, including in-context account creation and plaid/manual account sources.
+---
+
+## Problem
+Ours Ledger currently supports transaction capture and Plaid-imported actuals, but users cannot build a forward-looking budget for an entity. Users need a planning workspace where they can define expected income and recurring expense commitments before or independent of real transactions.
+
+Without a budgeting module, users cannot:
+- Model expected weekly/monthly/yearly cash flow clearly.
+- Track planned surplus/shortfall at the entity level.
+- Separate “plan” from “actual” in a structured way.
+
+## Business Context
+Budget planning is a core behavior for both target entity types:
+- `household`: paycheck planning, rent/utilities, subscriptions, debt payments.
+- `business`: recurring revenue expectations, payroll, rent, software, contractor retainers.
+
+Adding an entity-scoped budget builder improves retention and product depth by enabling proactive planning, not just historical tracking. It also strengthens Ours Ledger’s positioning versus transaction-only tools.
+
+## Goals & KPIs
+Primary goals:
+- Add a dedicated entity budget section for planning.
+- Support multiple income sources with `name` and `amount` inputs.
+- Support recurring planned expenses that are not required to be ledger transactions.
+- Support budget periods `weekly`, `monthly` (default), and `yearly`.
+- Show expected money left after all planned income and expenses are applied for the selected period.
+- Preserve clear separation between planned budget items and actual transaction data.
+
+KPIs (first 90 days after release):
+- 50%+ of active entities create at least one budget.
+- 70%+ of created budgets include at least two income sources or recurring expenses.
+- 40%+ of entities revisit/edit a budget in a later session.
+- 0 critical authorization defects involving entity budget data access.
+
+## Personas/Journeys
+Primary personas:
+- Entity `owner` planning shared finances.
+- Entity `user` collaborating on budget assumptions (role behavior finalized in Open Questions).
+
+Core journeys:
+1. Open budget section
+   - User navigates to a dedicated Budget section within an entity.
+2. Create budget period
+   - User creates a budget and selects `weekly`, `monthly` (default), or `yearly`.
+3. Add income sources
+   - User adds multiple planned income sources with names and amounts.
+4. Add recurring expenses
+   - User adds recurring expense items with names, amounts, and cadence.
+5. Review totals
+   - User sees projected income, projected recurring expenses, and expected remaining money for the selected period.
+6. Update assumptions
+   - User edits/removes items without creating any ledger transactions.
+
+## Functional Requirements
+### Information Architecture & Routing
+- Add a dedicated budget route under entity context:
+  - `/app/entity/[id]/budget/page.tsx` (budget overview/list)
+  - `/app/entity/[id]/budget/create/page.tsx` (create budget)
+  - `/app/entity/[id]/budget/[budgetId]/update/page.tsx` (edit budget)
+  - `/app/entity/[id]/budget/[budgetId]/manage/page.tsx` (manage items/summary)
+- Add entity navigation entry: `Budget`.
+
+### Budget Object (Planning Container)
+- A budget belongs to exactly one entity.
+- Required budget fields:
+  - `entityId`
+  - `name` (example: `March 2026 Budget`)
+  - `period` (`weekly`, `monthly`, `yearly`) with default `monthly`
+  - `effectiveDate`
+  - `status` (`draft`, `active`, `archived`)
+- Only one `active` budget per entity per period.
+
+### Planned Income Sources
+- User can add, edit, and remove multiple income sources within a budget.
+- Each income source requires:
+  - `name` (string)
+  - `amount` (currency decimal)
+- Optional fields:
+  - `cadence` (`weekly`, `monthly`, `yearly`)
+  - `notes`
+- System stores normalized period equivalents used to compute expected remaining money by selected budget period.
+
+### Planned Recurring Expenses
+- User can add, edit, and remove recurring planned expenses within a budget.
+- Each recurring expense requires:
+  - `name` (string)
+  - `amount` (currency decimal)
+- Optional fields:
+  - `cadence` (`weekly`, `monthly`, `yearly`)
+  - `category` (entity-defined or default taxonomy)
+  - `notes`
+- System stores normalized period equivalents used to compute expected remaining money by selected budget period.
+
+### Summary & Calculations
+- Budget summary must display:
+  - total projected income for the selected budget period
+  - total projected recurring expenses for the selected budget period
+  - expected remaining money for the selected budget period (`income - expenses`)
+- Summary updates immediately after item create/edit/delete.
+- Display values in entity currency.
+- Provide period-aware normalization for line items when item cadence differs from budget period.
+
+### Sophisticated Budgeting Tooling (Execution Bar)
+- Budgeting UX must feel production-grade for both `household` and `business` entities.
+- Include high-signal budget diagnostics:
+  - top expense concentration
+  - coverage ratio (`income / recurring expenses`)
+  - surplus health state (`healthy`, `tight`, `deficit`) based on configurable thresholds
+- Provide scenario-safe workflows:
+  - duplicate budget into a draft scenario
+  - compare scenario summary deltas before activation
+- Keep budget planning independent from transaction posting while enabling future plan-vs-actual analytics.
+
+### Separation from Transactions/Plaid (Non-Negotiable)
+- Budget items are planning records only.
+- Creating/updating/removing budget items must NOT create, modify, or delete ledger transactions.
+- Plaid imports must NOT automatically write to budget items in v1.
+- Any future “plan vs actual” comparison is read-only joining logic, not shared storage objects.
+
+### Permissions & Authorization
+- All budget reads/writes require authenticated membership in the entity.
+- Authorization checks must be server-side and role-aware.
+- Never trust client-supplied `userId` or role for budget operations.
+- Audit log required for budget create/update/delete actions.
+
+### UX Requirements
+- Budget builder UI must follow `UxStyle.md` and support light/dark mode.
+- Use shared form primitives where applicable (`InputField`, `SelectField`, `TextareaField`).
+- Mobile-first, flex-based layout with no horizontal overflow on any viewport size.
+- Inline validation and clear empty states:
+  - no budget created
+  - budget with zero items
+  - invalid amount/cadence
+- Include entity navigation with dedicated sections for:
+  - Budget
+  - Transactions
+  - Members (invites)
+- Entity navigation must include a mobile menu variant with keyboard support and smooth transitions.
+
+## Non-functional Requirements
+- Performance:
+  - budget overview load <2.0s median on broadband.
+  - item create/edit/delete roundtrip <500ms p50 for standard payloads.
+- Accessibility:
+  - keyboard-accessible forms and controls.
+  - WCAG 2.2 AA contrast and semantics.
+- Reliability:
+  - idempotent mutation handling for duplicate submits.
+- Security:
+  - deny-by-default authorization.
+  - immutable audit trail for budget mutations.
+  - no sensitive data in logs.
+
+## Data & Integrations
+### Convex Data Model (Proposed)
+- `entityBudgets`
+  - `entityId: v.id("entities")`
+  - `name: v.string()`
+  - `period: v.union(v.literal("weekly"), v.literal("monthly"), v.literal("yearly"))`
+  - `effectiveDate: v.string()`
+  - `status: v.union(v.literal("draft"), v.literal("active"), v.literal("archived"))`
+  - `createdByUserId: v.id("users")`
+  - `updatedByUserId: v.id("users")`
+  - Indexes: `by_entityId`, `by_entityId_period`, `by_entityId_status`, `by_entityId_updatedAt`
+- `budgetIncomeSources`
+  - `budgetId: v.id("entityBudgets")`
+  - `entityId: v.id("entities")`
+  - `name: v.string()`
+  - `amountCents: v.number()`
+  - `cadence: v.union(v.literal("weekly"), v.literal("monthly"), v.literal("yearly"))`
+  - `normalizedAmountCents: v.number()`
+  - Indexes: `by_budgetId`, `by_entityId`
+- `budgetRecurringExpenses`
+  - `budgetId: v.id("entityBudgets")`
+  - `entityId: v.id("entities")`
+  - `name: v.string()`
+  - `amountCents: v.number()`
+  - `cadence: v.union(v.literal("weekly"), v.literal("monthly"), v.literal("yearly"))`
+  - `normalizedAmountCents: v.number()`
+  - `category: v.optional(v.string())`
+  - Indexes: `by_budgetId`, `by_entityId`, `by_entityId_category`
+
+### Integration Boundaries
+- Auth.js: identity/session.
+- Convex: budgets and budget items storage.
+- Plaid: unchanged in v1 budget builder (no write coupling).
+- Ledger transactions: unchanged in v1 budget builder (no write coupling).
+
+## Open Questions
+- Should `user` role have edit rights on budgets, or view-only with `owner` edit rights?
+- Should v1 allow more than one active budget per entity for scenario planning?
+- Should `user` role edit permissions differ by entity type (`household` vs `business`)?
+- Should category taxonomy be shared with transaction categories at launch?
+- Should budget items support planned start/end dates for seasonal/temporary costs in v1?
+- Should budget diagnostics thresholds be globally configured or entity-customized?
+
+## Risks & Mitigations
+- Risk: users confuse budget items with actual transactions.
+  Mitigation: explicit UI labels (`Planned`, `Not posted`), separate navigation, and no auto-ledger writes.
+- Risk: cadence normalization errors produce incorrect summary totals.
+  Mitigation: shared normalization utility + unit tests for weekly/monthly/yearly conversion math.
+- Risk: permission drift exposes budget data across entities.
+  Mitigation: centralized membership authorization helper and entity-scoped indexes.
+- Risk: scope creep into full forecasting delays delivery.
+  Mitigation: strict v1 boundary around budget authoring + summary only.
+
+## Success Metrics
+- Budget creation rate per active entity.
+- Median count of planned items per budget.
+- Budget revisit/edit frequency.
+- Ratio of entities with at least one active budget.
+- Error rate for budget create/update mutations.
+
+## Rollout Plan
+1. Phase 1: Internal alpha
+   - Schema, CRUD, and UI for budget + income/expense planning items.
+   - Dedicated entity sections: Budget, Transactions, Members + mobile entity nav.
+   - Security and auth validation.
+2. Phase 2: Private beta
+   - Polish UX, improve validation, add lightweight analytics.
+3. Phase 3: Public release
+   - Roll out to all entities.
+   - Add docs/onboarding guidance.
+4. Phase 4: Post-launch enhancements
+   - Plan-vs-actual dashboards.
+   - Optional templates by entity type.
+
+## Next Steps
+1. Finalize role permissions (`owner` vs `user`) for budget editing.
+2. Finalize and lock period model (`weekly`, `monthly` default, `yearly`).
+3. Define Convex schema + indexes and audit event contracts.
+4. Build App Router budget routes and entity navigation entry.
+5. Implement budget CRUD with cadence normalization utilities.
+6. Add unit, integration, and E2E coverage for budget flows.
+7. Instrument KPI events (budget created, item added, budget updated).

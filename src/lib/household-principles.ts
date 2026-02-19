@@ -1,5 +1,5 @@
 /**
- * Product-level business assumptions for the shared-household budgeting model.
+ * Product-level business assumptions for the shared-entity finance model.
  */
 export const PRODUCT_NAME = "Ours Ledger";
 
