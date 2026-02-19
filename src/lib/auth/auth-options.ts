@@ -2,6 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { isSuperAdminEmail, resolvePlatformRole } from "@/lib/auth/roles";
+import { resolveAuthSecret } from "@/lib/auth/secret";
 
 function buildProviders() {
   const providers = [];
@@ -72,5 +73,5 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: resolveAuthSecret(),
 };

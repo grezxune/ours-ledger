@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.25] - 2026-02-19
+
+- Added shared Auth.js secret resolution that gracefully falls back when `NEXTAUTH_SECRET`/`AUTH_SECRET` are missing.
+- Wired NextAuth config to the new resolver so environments without explicit auth secret no longer crash with `NO_SECRET`.
+- Added unit tests covering secret precedence and deterministic fallback behavior.
+
 ## [0.2.24] - 2026-02-19
 
 - Replaced project no-words logo assets with the updated `~/Documents/ours-ledger-logo-no-words.png` source after background removal and tight trimming.
