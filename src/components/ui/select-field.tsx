@@ -1,15 +1,19 @@
 "use client";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, KeyboardEvent, SelectHTMLAttributes } from "react";
-import { ChevronDown } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ChevronDown, CirclePlus } from "lucide-react";
 import { useDropdownPosition } from "@/components/ui/use-dropdown-position";
 export interface SelectOption {
   label: string;
   value: string;
 }
+type CornerStyle = "default" | "none";
 interface SelectFieldProps
   extends Omit<SelectHTMLAttributes<HTMLSelectElement>, "defaultValue" | "multiple" | "size" | "value"> {
   label: string;
+  labelHidden?: boolean;
+  cornerStyle?: CornerStyle;
   options: SelectOption[];
   defaultValue?: string;
   value?: string;
@@ -23,10 +27,52 @@ function getInitialValue(options: SelectOption[], value?: string, defaultValue?:
   }
   return options[0]?.value ?? "";
 }
+
+const ADD_OPTION_VALUE_PREFIX = "__add_";
+const TYPEAHEAD_RESET_MS = 500;
+
+/**
+ * Detects add-new call-to-action options rendered inside shared select dropdowns.
+ */
+export function isAddSelectActionOption(option: SelectOption): boolean {
+  return option.value.startsWith(ADD_OPTION_VALUE_PREFIX) || /^add\b/i.test(option.label.trim());
+}
+
+/**
+ * Finds the first option whose label starts with the query from startIndex and wraps once.
+ */
+export function findTypeaheadMatch(options: SelectOption[], query: string, startIndex = 0): number {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery || options.length === 0) {
+    return -1;
+  }
+  const ordered = [
+    ...options.slice(Math.max(0, startIndex)),
+    ...options.slice(0, Math.max(0, startIndex)),
+  ];
+  const matchOffset = ordered.findIndex((option) =>
+    option.label.trim().toLowerCase().startsWith(normalizedQuery),
+  );
+  if (matchOffset === -1) {
+    return -1;
+  }
+  return (Math.max(0, startIndex) + matchOffset) % options.length;
+}
 /**
  * Styled label + custom select dropdown that keeps native form submission.
  */
-export function SelectField({ label, options, className, value, defaultValue, disabled, onChange, ...props }: SelectFieldProps) {
+export function SelectField({
+  label,
+  labelHidden = false,
+  cornerStyle = "default",
+  options,
+  className,
+  value,
+  defaultValue,
+  disabled,
+  onChange,
+  ...props
+}: SelectFieldProps) {
   const buttonId = useId();
   const listboxId = `${buttonId}-listbox`;
   const nativeSelectRef = useRef<HTMLSelectElement>(null);
@@ -38,6 +84,9 @@ export function SelectField({ label, options, className, value, defaultValue, di
   const [internalValue, setInternalValue] = useState(() =>
     getInitialValue(options, value, typeof defaultValue === "string" ? defaultValue : undefined),
   );
+  const typeaheadBufferRef = useRef("");
+  const typeaheadLastAtRef = useRef(0);
+  const typeaheadResetTimerRef = useRef<number | null>(null);
 
   const selectedValue = useMemo(() => {
     if (isControlled) {
@@ -52,19 +101,34 @@ export function SelectField({ label, options, className, value, defaultValue, di
     () => options.findIndex((option) => option.value === selectedValue),
     [options, selectedValue],
   );
+  const firstAddOptionIndex = useMemo(
+    () => options.findIndex((option) => isAddSelectActionOption(option)),
+    [options],
+  );
   const selectedOption = selectedIndex >= 0 ? options[selectedIndex] : options[0];
+  const cornersClass = cornerStyle === "none" ? "rounded-none" : "rounded-xl";
   const nativeSelectValueProps = isControlled ? { value: selectedValue } : { defaultValue: selectedValue };
-  const { placement, maxHeight } = useDropdownPosition(isOpen, options.length, containerRef, listboxRef);
+  const { maxHeight, top, left, width } = useDropdownPosition(isOpen, options.length, containerRef, listboxRef);
 
   useEffect(() => {
     function onDocumentPointerDown(event: MouseEvent) {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+      const targetNode = event.target as Node;
+      if (containerRef.current?.contains(targetNode)) return;
+      if (listboxRef.current?.contains(targetNode)) return;
+      setIsOpen(false);
     }
     document.addEventListener("mousedown", onDocumentPointerDown);
     return () => document.removeEventListener("mousedown", onDocumentPointerDown);
   }, []);
+
+  useEffect(
+    () => () => {
+      if (typeaheadResetTimerRef.current !== null) {
+        window.clearTimeout(typeaheadResetTimerRef.current);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!nativeSelectRef.current) return;
@@ -93,8 +157,40 @@ export function SelectField({ label, options, className, value, defaultValue, di
     onChange?.(event);
   }
 
+  function handleTypeahead(key: string) {
+    const now = Date.now();
+    const buffer =
+      now - typeaheadLastAtRef.current > TYPEAHEAD_RESET_MS
+        ? key.toLowerCase()
+        : `${typeaheadBufferRef.current}${key.toLowerCase()}`;
+    typeaheadBufferRef.current = buffer;
+    typeaheadLastAtRef.current = now;
+    if (typeaheadResetTimerRef.current !== null) {
+      window.clearTimeout(typeaheadResetTimerRef.current);
+    }
+    typeaheadResetTimerRef.current = window.setTimeout(() => {
+      typeaheadBufferRef.current = "";
+      typeaheadLastAtRef.current = 0;
+      typeaheadResetTimerRef.current = null;
+    }, TYPEAHEAD_RESET_MS);
+
+    const startIndex = selectedIndex >= 0 ? selectedIndex + 1 : 0;
+    const matchedIndex = findTypeaheadMatch(options, buffer, startIndex);
+    if (matchedIndex === -1) {
+      return;
+    }
+
+    setActiveIndex(matchedIndex);
+    commitValue(options[matchedIndex].value);
+  }
+
   function handleTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (options.length === 0) return;
+    if (!event.metaKey && !event.ctrlKey && !event.altKey && event.key.length === 1 && /\S/.test(event.key)) {
+      event.preventDefault();
+      handleTypeahead(event.key);
+      return;
+    }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (!isOpen) {
@@ -119,12 +215,8 @@ export function SelectField({ label, options, className, value, defaultValue, di
 
   return (
     <label className="flex flex-col gap-2 text-sm">
-      <span className="font-medium">{label}</span>
-      <div
-        className="relative"
-        onBlur={(event) => !event.currentTarget.contains(event.relatedTarget as Node | null) && setIsOpen(false)}
-        ref={containerRef}
-      >
+      <span className={labelHidden ? "sr-only" : "font-medium"}>{label}</span>
+      <div className="relative" ref={containerRef}>
         <select
           {...props}
           {...nativeSelectValueProps}
@@ -147,7 +239,7 @@ export function SelectField({ label, options, className, value, defaultValue, di
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-label={`Select ${label}`}
-          className={`w-full rounded-xl border border-line bg-surface px-3 py-2 pr-11 text-left text-sm outline-none ring-accent transition focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-70 ${className || ""}`}
+          className={`w-full ${cornersClass} border border-line bg-surface px-3 py-2 pr-11 text-left text-sm outline-none ring-accent transition focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-70 ${className || ""}`}
           disabled={disabled || options.length === 0}
           id={buttonId}
           onClick={() => {
@@ -164,34 +256,53 @@ export function SelectField({ label, options, className, value, defaultValue, di
           <ChevronDown className={`h-4 w-4 transition ${isOpen ? "rotate-180" : ""}`} />
         </span>
 
-        {isOpen ? (
-          <ul
-            className={[
-              "absolute left-0 right-0 z-20 overflow-auto rounded-xl border border-line bg-surface p-1 shadow-lg",
-              placement === "down" ? "top-[calc(100%+0.25rem)]" : "bottom-[calc(100%+0.25rem)]",
-            ].join(" ")}
-            id={listboxId}
-            role="listbox"
-            ref={listboxRef}
-            style={{ maxHeight: `${maxHeight}px` }}
-          >
-            {options.map((option, index) => (
-              <li key={option.value}>
-                <button
-                  aria-selected={option.value === selectedValue}
-                  aria-label={`Choose ${option.label}`}
-                  className={`w-full rounded-lg px-2 py-2 text-left text-sm ${index === activeIndex ? "bg-foreground/10" : "hover:bg-foreground/5"}`}
-                  onClick={() => commitValue(option.value)}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  role="option"
-                  type="button"
-                >
-                  {option.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
+        {isOpen && typeof document !== "undefined"
+          ? createPortal(
+              <ul
+                className="fixed z-[120] overflow-auto rounded-xl border border-line bg-surface p-1 shadow-lg"
+                id={listboxId}
+                role="listbox"
+                ref={listboxRef}
+                style={{
+                  maxHeight: `${maxHeight}px`,
+                  top: `${top}px`,
+                  left: `${left}px`,
+                  width: `${width}px`,
+                }}
+              >
+                {options.map((option, index) => (
+                  <li
+                    className={
+                      isAddSelectActionOption(option) && index === firstAddOptionIndex && firstAddOptionIndex > 0
+                        ? "mt-1 border-t border-line/70 pt-2"
+                        : ""
+                    }
+                    key={option.value}
+                  >
+                    <button
+                      aria-selected={option.value === selectedValue}
+                      aria-label={`Choose ${option.label}`}
+                      className={`w-full rounded-lg px-2 py-2 text-left text-sm ${isAddSelectActionOption(option) ? "font-medium text-accent" : ""} ${index === activeIndex ? "bg-foreground/10" : "hover:bg-foreground/5"}`}
+                      onClick={() => commitValue(option.value)}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      role="option"
+                      type="button"
+                    >
+                      {isAddSelectActionOption(option) ? (
+                        <span className="inline-flex items-center gap-2">
+                          <CirclePlus aria-hidden className="size-4" />
+                          <span>{option.label}</span>
+                        </span>
+                      ) : (
+                        option.label
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>,
+              document.body,
+            )
+          : null}
       </div>
     </label>
   );

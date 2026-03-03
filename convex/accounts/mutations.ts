@@ -9,7 +9,7 @@ const createAccountInputValidator = v.object({
   name: v.string(),
   currency: v.string(),
   source: accountSourceValidator,
-  institutionName: v.optional(v.string()),
+  institutionId: v.id("entityInstitutions"),
   plaidAccountId: v.optional(v.string()),
 });
 
@@ -24,6 +24,10 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.userId, args.entityId);
+    const institution = await ctx.db.get(args.input.institutionId);
+    if (!institution || institution.entityId !== args.entityId) {
+      throw new Error("Selected institution is not available for this entity.");
+    }
     const now = nowIso();
 
     const accountId = await ctx.db.insert("entityAccounts", {
@@ -31,7 +35,8 @@ export const create = mutation({
       name: args.input.name.trim(),
       currency: args.input.currency.trim(),
       source: args.input.source,
-      institutionName: args.input.institutionName?.trim() || undefined,
+      institutionId: args.input.institutionId,
+      institutionName: institution.name,
       plaidAccountId: args.input.plaidAccountId?.trim() || undefined,
       createdByUserId: args.userId,
       createdAt: now,
@@ -49,7 +54,8 @@ export const create = mutation({
         name: args.input.name.trim(),
         currency: args.input.currency.trim(),
         source: args.input.source,
-        institutionName: args.input.institutionName?.trim() || "",
+        institutionId: String(args.input.institutionId),
+        institutionName: institution.name,
         plaidAccountId: args.input.plaidAccountId?.trim() || "",
       },
     });

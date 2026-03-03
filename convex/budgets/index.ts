@@ -5,5 +5,5 @@ export {
   removeIncomeSource,
   removeRecurringExpense,
 } from "./mutations";
-export { updateIncomeSource } from "./incomeMutations";
+export { updateIncomeSource, updateRecurringExpense } from "./incomeMutations";
 export { getBudgetById, listByEntity } from "./queries";

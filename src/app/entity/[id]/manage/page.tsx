@@ -39,22 +39,30 @@ export default async function ManageEntityPage({ params }: ManageEntityPageProps
       <div className="grid gap-5 lg:grid-cols-2">
         <Card title="Entity Sections">
           <div className="flex flex-wrap gap-2 text-sm">
-            <Link aria-label="Open budget section" className="inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2" href={`/entity/${id}/budget`}>
-              <Wallet aria-hidden className="size-4" />
-              Budget
-            </Link>
-            <Link aria-label="Open transactions section" className="inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2" href={`/entity/${id}/transactions`}>
-              <ReceiptText aria-hidden className="size-4" />
-              Transactions
-            </Link>
-            <Link aria-label="Open members section" className="inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2" href={`/entity/${id}/members`}>
-              <Users aria-hidden className="size-4" />
-              Members
-            </Link>
-            <Link aria-label="Open overview section" className="inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2" href={`/entity/${id}`}>
-              <LayoutDashboard aria-hidden className="size-4" />
-              Overview
-            </Link>
+            <Button asChild ariaLabel="Open budget section" className="rounded-lg px-3 py-2" variant="secondary">
+              <Link href={`/entity/${id}/budget`}>
+                <Wallet aria-hidden className="size-4" />
+                Budget
+              </Link>
+            </Button>
+            <Button asChild ariaLabel="Open transactions section" className="rounded-lg px-3 py-2" variant="secondary">
+              <Link href={`/entity/${id}/transactions`}>
+                <ReceiptText aria-hidden className="size-4" />
+                Transactions
+              </Link>
+            </Button>
+            <Button asChild ariaLabel="Open members section" className="rounded-lg px-3 py-2" variant="secondary">
+              <Link href={`/entity/${id}/members`}>
+                <Users aria-hidden className="size-4" />
+                Members
+              </Link>
+            </Button>
+            <Button asChild ariaLabel="Open overview section" className="rounded-lg px-3 py-2" variant="secondary">
+              <Link href={`/entity/${id}`}>
+                <LayoutDashboard aria-hidden className="size-4" />
+                Overview
+              </Link>
+            </Button>
           </div>
           <p className="mt-3 text-sm text-foreground/75">
             Use section-specific pages for budget planning, transaction entry, and member invitations.

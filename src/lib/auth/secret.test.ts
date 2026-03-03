@@ -25,7 +25,7 @@ describe("resolveAuthSecret", () => {
     const logger = { warn: () => undefined };
     const env = {
       NODE_ENV: "production",
-      NEXTAUTH_URL: "https://ours-ledger.example",
+      NEXTAUTH_URL: "https://our-ledger.example",
       HOSTNAME: "app-server-1",
     };
     const first = resolveAuthSecret(env, logger);

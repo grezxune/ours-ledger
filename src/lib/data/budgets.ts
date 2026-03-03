@@ -87,7 +87,7 @@ export async function addBudgetRecurringExpense(
     amountCents: number;
     cadence: BudgetPeriod;
     accountId?: string;
-    category?: string;
+    categoryId: string;
     notes?: string;
   },
 ): Promise<string> {
@@ -100,6 +100,36 @@ export async function addBudgetRecurringExpense(
     input: {
       ...input,
       accountId: input.accountId ? asId<"entityAccounts">(input.accountId) : undefined,
+      categoryId: asId<"entityExpenseCategories">(input.categoryId),
+    },
+  });
+}
+
+/**
+ * Updates a planned recurring expense line on a budget.
+ */
+export async function updateBudgetRecurringExpense(
+  userEmail: string,
+  recurringExpenseId: string,
+  input: {
+    name: string;
+    amountCents: number;
+    cadence: BudgetPeriod;
+    accountId: string;
+    categoryId: string;
+    notes?: string;
+  },
+): Promise<void> {
+  const userId = await requireUserId(userEmail);
+  const client = createConvexClient();
+
+  await client.mutation(api.budgets.incomeMutations.updateRecurringExpense, {
+    userId,
+    recurringExpenseId: asId<"budgetRecurringExpenses">(recurringExpenseId),
+    input: {
+      ...input,
+      accountId: asId<"entityAccounts">(input.accountId),
+      categoryId: asId<"entityExpenseCategories">(input.categoryId),
     },
   });
 }

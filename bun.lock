@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "ours-ledger",
+      "name": "our-ledger",
       "dependencies": {
         "@aws-sdk/client-cloudfront": "^3.993.0",
         "@aws-sdk/client-s3": "^3.993.0",

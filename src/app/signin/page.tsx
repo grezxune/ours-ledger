@@ -18,7 +18,7 @@ export default async function SignInPage() {
       <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
         <Card className="reveal-up" title="Finance Operations, One Trusted Workspace">
           <p className="max-w-xl text-sm leading-relaxed text-foreground/80">
-            Ours Ledger is designed for modern teams managing shared household and business money. Access is
+            Our Ledger is designed for modern teams managing shared household and business money. Access is
             secure, workflows are clear, and every financial move stays auditable and organized.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">

@@ -113,6 +113,7 @@ export default defineSchema({
     budgetId: v.id("entityBudgets"),
     entityId: v.id("entities"),
     accountId: v.optional(v.id("entityAccounts")),
+    categoryId: v.optional(v.id("entityExpenseCategories")),
     name: v.string(),
     amountCents: v.number(),
     cadence: budgetPeriodValidator,
@@ -131,6 +132,7 @@ export default defineSchema({
     name: v.string(),
     currency: v.string(),
     source: accountSourceValidator,
+    institutionId: v.optional(v.id("entityInstitutions")),
     institutionName: v.optional(v.string()),
     plaidAccountId: v.optional(v.string()),
     createdByUserId: v.id("users"),
@@ -139,6 +141,28 @@ export default defineSchema({
   })
     .index("by_entityId", ["entityId"])
     .index("by_entityId_source", ["entityId", "source"]),
+
+  entityInstitutions: defineTable({
+    entityId: v.id("entities"),
+    name: v.string(),
+    normalizedName: v.string(),
+    createdByUserId: v.id("users"),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_entityId", ["entityId"])
+    .index("by_entityId_normalizedName", ["entityId", "normalizedName"]),
+
+  entityExpenseCategories: defineTable({
+    entityId: v.id("entities"),
+    name: v.string(),
+    normalizedName: v.string(),
+    createdByUserId: v.id("users"),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_entityId", ["entityId"])
+    .index("by_entityId_normalizedName", ["entityId", "normalizedName"]),
 
   documents: defineTable({
     entityId: v.id("entities"),

@@ -3,7 +3,7 @@ import { getHouseholdType, PRODUCT_MOTTO, PRODUCT_NAME } from "./household-princ
 
 describe("household principles", () => {
   it("exposes core product identity constants", () => {
-    expect(PRODUCT_NAME).toBe("Ours Ledger");
+    expect(PRODUCT_NAME).toBe("Our Ledger");
     expect(PRODUCT_MOTTO).toBe("What's mine is ours.");
   });
 

@@ -65,15 +65,16 @@ export function SignInForm() {
 
   return (
     <div className="flex flex-col gap-5">
-      <button
+      <Button
         aria-label="Continue with Google sign in"
-        className="inline-flex h-11 items-center justify-center gap-3 rounded-lg border border-[#dadce0] bg-white px-4 text-[15px] font-medium text-[#3c4043] shadow-[0_1px_2px_rgba(60,64,67,0.08)] transition hover:shadow-[0_1px_3px_rgba(60,64,67,0.25)] focus:outline-none focus:ring-2 focus:ring-accent"
+        className="inline-flex h-11 items-center justify-center gap-3 rounded-lg border border-[#dadce0] bg-white px-4 text-[15px] font-medium text-[#1f1f1f] shadow-[0_1px_2px_rgba(60,64,67,0.08)] transition-[background-color,box-shadow] hover:bg-[#f8f9fa] hover:shadow-[0_1px_3px_rgba(60,64,67,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-70"
         onClick={handleGoogleSignIn}
         type="button"
+        unstyled
       >
         <GoogleMark />
         <span>{isGoogleLoading ? "Redirecting..." : "Continue with Google"}</span>
-      </button>
+      </Button>
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">

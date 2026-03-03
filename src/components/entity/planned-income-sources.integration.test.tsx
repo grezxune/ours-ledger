@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PlannedIncomeSources } from "@/components/entity/planned-income-sources";
 
 describe("planned income sources integration", () => {
-  it("renders compact table with edit and add CTA", () => {
+  it("renders compact table with inline add row", () => {
     const html = renderToStaticMarkup(
       <PlannedIncomeSources
         addIncomeSourceAction={async () => {}}
@@ -29,7 +29,8 @@ describe("planned income sources integration", () => {
     expect(html).toContain("Planned Income Sources");
     expect(html).toContain("Source");
     expect(html).toContain("Open actions for Salary");
-    expect(html).toContain("Add income source");
+    expect(html).toContain("Source name");
+    expect(html).toContain("Notes (optional)");
     expect(html).toContain("Salary");
     expect(html).toContain("Primary paycheck");
   });

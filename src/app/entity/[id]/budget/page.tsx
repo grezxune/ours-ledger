@@ -10,15 +10,20 @@ import { requireAuthSession } from "@/lib/auth/session";
 import { listEntityAccounts } from "@/lib/data/accounts";
 import { listEntityBudgets } from "@/lib/data/budgets";
 import { getEntityForUser, requireMembership } from "@/lib/data/entities";
+import { listEntityExpenseCategories } from "@/lib/data/expense-categories";
+import { listEntityInstitutions } from "@/lib/data/institutions";
 import { BUDGET_PERIOD_OPTIONS } from "@/lib/domain/options";
 import {
   addIncomeSourceAction,
   addRecurringExpenseAction,
   createBudgetAccountAction,
+  createBudgetExpenseCategoryAction,
+  createBudgetInstitutionAction,
   createBudgetAction,
   removeIncomeSourceAction,
   removeRecurringExpenseAction,
   updateIncomeSourceAction,
+  updateRecurringExpenseAction,
 } from "@/app/entity/[id]/budget/actions";
 
 interface BudgetPageProps {
@@ -40,11 +45,13 @@ export default async function EntityBudgetPage({ params }: BudgetPageProps) {
     throw new Error("Session missing email.");
   }
 
-  const [entity, membership, budgets, accounts] = await Promise.all([
+  const [entity, membership, budgets, accounts, institutions, expenseCategories] = await Promise.all([
     getEntityForUser(email, id),
     requireMembership(email, id),
     listEntityBudgets(email, id),
     listEntityAccounts(email, id),
+    listEntityInstitutions(email, id),
+    listEntityExpenseCategories(email, id),
   ]);
 
   const activeBudget = budgets.find((budget) => budget.status === "active") || budgets[0] || null;
@@ -95,16 +102,23 @@ export default async function EntityBudgetPage({ params }: BudgetPageProps) {
 
           <div className="grid gap-5">
             <Card title="Recurring Planned Expenses">
+              <RecurringExpenseList
+                accounts={accounts}
+                currency={entity.currency}
+                expenseCategories={expenseCategories}
+                recurringExpenses={activeBudget.recurringExpenses}
+                removeRecurringExpenseAction={removeRecurringExpenseAction.bind(null, id)}
+                updateRecurringExpenseAction={updateRecurringExpenseAction.bind(null, id)}
+              />
               <RecurringExpensePlanner
                 accounts={accounts}
                 addRecurringExpenseAction={addRecurringExpenseAction.bind(null, id, activeBudget.id)}
                 createAccountAction={createBudgetAccountAction.bind(null, id)}
+                createExpenseCategoryAction={createBudgetExpenseCategoryAction.bind(null, id)}
+                createInstitutionAction={createBudgetInstitutionAction.bind(null, id)}
                 entityCurrency={entity.currency}
-              />
-              <RecurringExpenseList
-                currency={entity.currency}
-                recurringExpenses={activeBudget.recurringExpenses}
-                removeRecurringExpenseAction={removeRecurringExpenseAction.bind(null, id)}
+                expenseCategories={expenseCategories}
+                institutions={institutions}
               />
             </Card>
           </div>

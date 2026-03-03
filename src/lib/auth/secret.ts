@@ -25,7 +25,7 @@ export function resolveAuthSecret(
     env.AUTH_URL,
     env.VERCEL_PROJECT_PRODUCTION_URL,
     env.HOSTNAME,
-    "ours-ledger-auth-fallback",
+    "our-ledger-auth-fallback",
   ]
     .filter(Boolean)
     .join("|");

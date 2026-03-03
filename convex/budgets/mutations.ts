@@ -25,7 +25,7 @@ const recurringExpenseInputValidator = v.object({
   amountCents: v.number(),
   cadence: budgetPeriodValidator,
   accountId: v.optional(v.id("entityAccounts")),
-  category: v.optional(v.string()),
+  categoryId: v.id("entityExpenseCategories"),
   notes: v.optional(v.string()),
 });
 
@@ -129,6 +129,10 @@ export const addRecurringExpense = mutation({
   handler: async (ctx, args) => {
     requirePositiveAmount(args.input.amountCents);
     const budget = await requireBudgetMembership(ctx, args.userId, args.budgetId);
+    const expenseCategory = await ctx.db.get(args.input.categoryId);
+    if (!expenseCategory || expenseCategory.entityId !== budget.entityId) {
+      throw new Error("Selected expense category is not available for this entity.");
+    }
     if (args.input.accountId) {
       const account = await ctx.db.get(args.input.accountId);
       if (!account || account.entityId !== budget.entityId) {
@@ -140,6 +144,7 @@ export const addRecurringExpense = mutation({
       budgetId: args.budgetId,
       entityId: budget.entityId,
       ...args.input,
+      category: expenseCategory.name,
       name: args.input.name.trim(),
       createdByUserId: args.userId,
       createdAt: now,
@@ -152,7 +157,12 @@ export const addRecurringExpense = mutation({
       entityId: budget.entityId,
       action: "budget.recurring_expense_added",
       target: lineId,
-      metadata: { budgetId: String(args.budgetId), recurringExpenseId: String(lineId) },
+      metadata: {
+        budgetId: String(args.budgetId),
+        recurringExpenseId: String(lineId),
+        expenseCategoryId: String(args.input.categoryId),
+        category: expenseCategory.name,
+      },
     });
 
     return lineId;

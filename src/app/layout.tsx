@@ -15,8 +15,8 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: "Ours Ledger",
-    template: "%s | Ours Ledger",
+    default: "Our Ledger",
+    template: "%s | Our Ledger",
   },
   description:
     "A shared-entity finance app for households and businesses with collaborative roles and full visibility.",
@@ -39,6 +39,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${manrope.variable} ${fraunces.variable} relative isolate bg-background text-foreground antialiased`}
+        suppressHydrationWarning
       >
         <GlobalParallaxBackground />
         <div className="relative z-10">{children}</div>

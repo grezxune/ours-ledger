@@ -27,7 +27,7 @@ function buildProviders() {
       async authorize(credentials) {
         const email = credentials?.email?.trim().toLowerCase();
         const passphrase = credentials?.passphrase;
-        const allowedPassphrase = process.env.DEV_AUTH_PASSPHRASE ?? "ours-ledger";
+        const allowedPassphrase = process.env.DEV_AUTH_PASSPHRASE ?? "our-ledger";
         if (!email || passphrase !== allowedPassphrase) {
           return null;
         }

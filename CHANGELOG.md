@@ -1,5 +1,180 @@
 # Changelog
 
+## [0.2.56] - 2026-02-26
+
+- Added the same mobile responsive pattern to planned income sources as recurring expenses: stacked mobile list rows and stacked mobile creation form.
+- Kept desktop compact table + inline add-row behavior while ensuring planned income and recurring expense components stay visually in sync across breakpoints.
+
+## [0.2.55] - 2026-02-26
+
+- Added responsive recurring planned expense layouts: stacked mobile rendering for existing rows and stacked mobile creation form to prevent right-side overflow on small screens.
+- Kept compact table + inline-row entry pattern on `md+` while ensuring no required recurring-expense interactions depend on horizontal scrolling.
+
+## [0.2.54] - 2026-02-26
+
+- Upgraded shared `SelectField` to support keyboard type-to-jump matching against option labels.
+- Moved select dropdown menus to a `document.body` portal with fixed positioning so menus overlay above all layout containers.
+- Added viewport-aware select menu positioning data (top/left/width/max-height) with automatic open-up/open-down behavior and scroll/resize re-measurement.
+
+## [0.2.53] - 2026-02-26
+
+- Added server-action compatibility fallback for budget line-item updates when Convex `budgets/incomeMutations:*` functions are unavailable in the current deployment.
+- Recurring expense and income source edits now degrade safely by replacing the original line item (add replacement then remove original) instead of crashing with missing-function runtime errors.
+
+## [0.2.52] - 2026-02-26
+
+- Added explicit square-corner support on shared `InputField`/`SelectField` so inline table-entry controls render without border radius in both focused and unfocused states.
+- Applied the square-corner under-table input standard across planned-income and recurring-expense inline entry rows.
+
+## [0.2.51] - 2026-02-26
+
+- Updated inline planned-entry row focus treatment to remove rounded focus states and use bottom-border-only emphasis (no full border/ring highlight).
+- Added this focus-style requirement to `UxStyle.md` for future under-table input rows.
+
+## [0.2.50] - 2026-02-26
+
+- Updated planned-income and recurring-expense inline table entry rows to use ghost-style inputs/selects (no per-field borders/background blocks) with tighter cell spacing.
+- Added UX standard requiring borderless/tight under-table input row styling for planned line-item creation.
+
+## [0.2.49] - 2026-02-26
+
+- Switched planned-income creation from modal CTA flow to an inline input row under the income table.
+- Switched recurring planned-expense creation to an inline input row under the recurring table, with a secondary full-width notes row.
+- Updated `UxStyle.md` and budget PRD to standardize inline under-table input rows for planned line-item creation.
+
+## [0.2.48] - 2026-02-26
+
+- Added dedicated `Category` and `Account` columns to the recurring planned expenses table for clearer scanning.
+- Updated `UxStyle.md` planning table standard to require separate category/account columns for recurring planned expenses.
+
+## [0.2.47] - 2026-02-26
+
+- Refactored recurring planned expenses from spaced card rows into a compact table layout aligned with planned income source presentation.
+- Standardized planned line-item presentation guidance in `UxStyle.md` so planned income and recurring expenses both default to dense table patterns going forward.
+
+## [0.2.46] - 2026-02-26
+
+- Added full edit support for recurring planned expenses from the row action menu, including name, amount, cadence, category, paid-from account, and notes.
+- Wired recurring-expense update mutations through the budget actions/data layer and audit events so edits persist with entity ownership validation.
+- Added/updated recurring-expense list integration coverage for the new edit-capable list configuration.
+
+## [0.2.45] - 2026-02-26
+
+- Added shared select CTA styling for add-new options: divider line above the first add option plus icon + text treatment in dropdown menus.
+- Documented the select add-CTA pattern in `UxStyle.md` as a project-wide rule.
+
+## [0.2.44] - 2026-02-26
+
+- Removed standalone `Add Category` and `Add Account` buttons from the recurring planned expenses tile.
+- Kept add-new actions accessible only through the corresponding select dropdown options for category/account.
+
+## [0.2.43] - 2026-02-26
+
+- Changed institution creation in the add-account workflow to open a dedicated modal triggered from the Institution select add option.
+- Removed the separate below-select `Add Institution` button to keep add-new behavior inside the select path.
+
+## [0.2.42] - 2026-02-26
+
+- Kept `Add Category`, `Add Account`, and `Add Institution` options available in select menus even when existing options are present.
+- Extended expense-form helper and integration coverage to lock this non-empty list behavior.
+
+## [0.2.41] - 2026-02-26
+
+- Updated the shared modal container to center dialogs on all breakpoints (including mobile) instead of bottom-docking on small screens.
+
+## [0.2.40] - 2026-02-26
+
+- Removed page-refresh behavior from inline expense category, institution, and account creation flows in budget/transaction forms.
+- Updated modal submit flows to perform in-place server action calls and update select options locally so in-progress form entries are preserved.
+- Kept recurring expense inline-create state logic co-located in the planner component for cohesion across category/account/institution modal interactions.
+
+## [0.2.39] - 2026-02-26
+
+- Fixed inline expense-category creation in budget/transactions flows to gracefully handle duplicate names without surfacing uncaught runtime errors.
+- Added shared duplicate-category error classification helper with unit and integration coverage for safe duplicate handling.
+
+## [0.2.38] - 2026-02-20
+
+- Replaced the transactions form free-text category input with required managed expense category selection.
+- Added inline add-category flow to the transactions form so users can create categories without leaving the page.
+- Enforced server-side category selection validation for transaction creation using entity-scoped expense categories.
+
+## [0.2.37] - 2026-02-20
+
+- Added entity-scoped expense category management in Convex and required recurring-expense creation to select a category from that collection.
+- Replaced free-text recurring expense category input with a required category select plus an inline add-category flow.
+- Added a dedicated account modal component and shared expense-form selection helpers/constants to keep account/category/institution selection behavior consistent.
+- Expanded audit/detail metadata mapping to resolve `expense_category.*` and `expenseCategoryId` references.
+
+## [0.2.36] - 2026-02-20
+
+- Added an entity-scoped institutions collection in Convex and wired budget account creation to require selecting an institution from that collection.
+- Replaced free-text institution entry in recurring-expense account creation with a select-only institution field.
+- Added inline institution creation flow in the account modal, including empty-state CTA support when no institutions exist.
+- Added Convex audit table mapping for `institution.*` events and refreshed generated Convex API typings.
+
+## [0.2.35] - 2026-02-20
+
+- Added desktop overflow detection for entity section tabs so they gracefully collapse to the existing section menu trigger instead of running off-screen.
+- Extended shared `TabNav` with optional nav refs to support layout measurement without duplicating tab markup.
+- Added unit coverage for entity tab-collapse threshold behavior.
+
+## [0.2.34] - 2026-02-20
+
+- Fixed Google sign-in button contrast in dark mode by making its styling explicit and independent of theme-driven secondary button text colors.
+- Added sign-in integration coverage to assert the Google CTA keeps its dedicated dark text styling.
+
+## [0.2.33] - 2026-02-20
+
+- Added shared `TabNav` component to standardize tab rendering for both horizontal tab bars and stacked tab lists.
+- Migrated primary header tabs and entity section tabs to `TabNav`, removing the previous button-inside-tab-bar styling.
+- Updated `UxStyle.md` with explicit `TabNav` usage rules and clarified that tabs are exempt from the shared `Button` requirement.
+
+## [0.2.32] - 2026-02-20
+
+- Added `unstyled` support to the shared `Button` so structural controls (full-screen dismiss backdrops) can avoid size/padding styles.
+- Fixed mobile menu/modal dismiss overlays to use true full-viewport backdrops across the app (`fixed` + `inset-0`), resolving small click-target overlay issues.
+- Updated primary header navigation responsiveness to defer desktop tab rendering until wider breakpoints and rely on drawer navigation before that to prevent cramped tabs.
+- Updated `UxStyle.md` with explicit overlay and responsive-header rules to enforce this behavior consistently.
+
+## [0.2.31] - 2026-02-20
+
+- Upgraded shared `Button` with polymorphic `asChild` support so links and buttons share one styling/interaction surface.
+- Migrated app-wide button-like links and CTAs (header, mobile drawer, entity overview/manage sections, audits detail, marketing CTAs) to the shared `Button` component.
+- Updated modal close controls to use the shared `Button` component.
+- Added a `UxStyle.md` rule requiring shared `Button` usage for button-like actions/links and defining limited primitive exceptions.
+
+## [0.2.30] - 2026-02-20
+
+- Introduced dedicated primary-action button color tokens (`action-primary`, `action-primary-hover`, `action-primary-foreground`) to replace the low-contrast light-blue + white CTA treatment.
+- Updated shared `Button` primary styles plus header/mobile/marketing primary CTAs to use the new darker action palette.
+- Updated `UxStyle.md` with an explicit rule banning light-blue filled primary buttons with white text and documenting the approved button colors.
+
+## [0.2.29] - 2026-02-20
+
+- Redesigned entity section navigation with non-wrapping desktop tab chips and a cleaner mobile section trigger + drawer.
+- Fixed entity nav active-route matching so `Overview` is only active on the exact overview route, while section tabs support nested paths.
+- Added entity navigation integration coverage to assert exactly one active tab and prevent active-state regressions.
+
+## [0.2.28] - 2026-02-19
+
+- Renamed project naming references from `Ours Ledger`/`ours-ledger` to `Our Ledger`/`our-ledger` across app copy, docs, config, tests, and package metadata.
+- Renamed branded image asset filenames from `ours-ledger-*` to `our-ledger-*` and updated all in-app references.
+- Renamed GitHub repository from `grezxune/ours-ledger` to `grezxune/our-ledger` and updated local `origin` remote.
+- Renamed Vercel project to `our-ledger`, updated linked Git repository, and synced local `.vercel/project.json`.
+
+## [0.2.27] - 2026-02-19
+
+- Moved mobile header navigation into a dedicated portal-rendered drawer component (`MobileNavDrawer`) mounted to `document.body`.
+- Enforced full viewport drawer height (`100dvh`) with internal vertical scrolling so long mobile navigation states remain reachable.
+- Kept overlay close, explicit close action, and Escape-key dismissal behavior with body scroll lock while the drawer is open.
+
+## [0.2.26] - 2026-02-19
+
+- Rebuilt the global app header into a polished navigation system with a desktop nav rail, stronger visual hierarchy, and clearer action prioritization.
+- Added a mobile right-side slide-over navigation experience with backdrop close, explicit close control, and Escape-key support.
+- Split header concerns into a new shared `PrimaryHeader` component and simplified `AppShell` to compose that reusable header.
+
 ## [0.2.25] - 2026-02-19
 
 - Added shared Auth.js secret resolution that gracefully falls back when `NEXTAUTH_SECRET`/`AUTH_SECRET` are missing.
@@ -8,13 +183,13 @@
 
 ## [0.2.24] - 2026-02-19
 
-- Replaced project no-words logo assets with the updated `~/Documents/ours-ledger-logo-no-words.png` source after background removal and tight trimming.
+- Replaced project no-words logo assets with the updated `~/Documents/our-ledger-logo-no-words.png` source after background removal and tight trimming.
 - Rebuilt favicon sources/derivatives from the updated no-words mark and regenerated `src/app/favicon.ico`.
 - Updated header branding to use the no-words logo mark with the app title rendered as text to the right of the mark.
 
 ## [0.2.23] - 2026-02-19
 
-- Replaced the Documents source logo with the new `~/Downloads/ours-ledger-logo.png` asset.
+- Replaced the Documents source logo with the new `~/Downloads/our-ledger-logo.png` asset.
 - Overwrote project logo originals/runtime copy with a cleaned version of the new logo (background removed and tightly trimmed to content).
 - Regenerated the web-sized header logo from the cleaned original and updated header intrinsic image dimensions to match.
 
@@ -214,7 +389,7 @@
 ## [0.1.0] - 2026-02-19
 
 - Scaffolded Next.js 16 + Tailwind CSS 4 app using Bun.
-- Established initial brand shell and homepage for Ours Ledger.
+- Established initial brand shell and homepage for Our Ledger.
 - Added project guidance files: `AGENTS.md` and `UxStyle.md`.
 - Added PRD roadmap and market research synthesis in `prds/couples-shared-budgeting-core.md`.
 - Added baseline unit and integration tests for shared-household messaging.

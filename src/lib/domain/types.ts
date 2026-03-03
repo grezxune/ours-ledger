@@ -99,6 +99,7 @@ export interface BudgetRecurringExpense {
   budgetId: string;
   entityId: string;
   accountId?: string;
+  categoryId?: string;
   name: string;
   amountCents: number;
   cadence: BudgetPeriod;
@@ -139,6 +140,7 @@ export interface EntityAccount {
   name: string;
   currency: string;
   source: AccountSource;
+  institutionId?: string;
   institutionName?: string;
   plaidAccountId?: string;
   createdAt: string;

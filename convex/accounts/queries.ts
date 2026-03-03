@@ -8,6 +8,7 @@ function mapAccount(account: {
   name: string;
   currency: string;
   source: "manual" | "plaid";
+  institutionId?: string;
   institutionName?: string;
   plaidAccountId?: string;
   createdAt: string;
@@ -19,6 +20,7 @@ function mapAccount(account: {
     name: account.name,
     currency: account.currency,
     source: account.source,
+    institutionId: account.institutionId,
     institutionName: account.institutionName,
     plaidAccountId: account.plaidAccountId,
     createdAt: account.createdAt,

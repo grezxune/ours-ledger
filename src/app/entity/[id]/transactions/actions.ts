@@ -2,7 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { requireAuthSession } from "@/lib/auth/session";
+import { createEntityExpenseCategory, listEntityExpenseCategories } from "@/lib/data/expense-categories";
+import { isDuplicateExpenseCategoryError } from "@/lib/data/expense-category-errors";
 import { createTransaction } from "@/lib/data/ledger";
+import { ADD_EXPENSE_CATEGORY_OPTION } from "@/lib/domain/expense-form";
 
 /**
  * Adds manual ledger entries for one-off and recurring workflows.
@@ -15,9 +18,18 @@ export async function createTransactionAction(entityId: string, formData: FormDa
   }
 
   const kind = (formData.get("kind") as "one_off" | "recurring") || "one_off";
+  const categoryId = String(formData.get("categoryId") || "").trim();
   const amount = Number(formData.get("amount") || 0);
   if (!Number.isFinite(amount) || amount <= 0) {
     throw new Error("Amount must be greater than zero.");
+  }
+  if (!categoryId || categoryId === ADD_EXPENSE_CATEGORY_OPTION) {
+    throw new Error("Please select a valid expense category.");
+  }
+  const expenseCategories = await listEntityExpenseCategories(email, entityId);
+  const selectedCategory = expenseCategories.find((category) => category.id === categoryId);
+  if (!selectedCategory) {
+    throw new Error("Selected expense category is not available for this entity.");
   }
 
   await createTransaction(email, entityId, {
@@ -26,7 +38,7 @@ export async function createTransactionAction(entityId: string, formData: FormDa
     status: (formData.get("status") as "pending" | "posted" | "voided") || "posted",
     amountCents: Math.round(amount * 100),
     date: String(formData.get("date") || new Date().toISOString().slice(0, 10)),
-    category: String(formData.get("category") || "Uncategorized").trim(),
+    category: selectedCategory.name,
     payee: String(formData.get("payee") || "").trim() || undefined,
     notes: String(formData.get("notes") || "").trim() || undefined,
     recurrence:
@@ -41,4 +53,46 @@ export async function createTransactionAction(entityId: string, formData: FormDa
   });
 
   redirect(`/entity/${entityId}/transactions`);
+}
+
+/**
+ * Creates an expense category inline for transaction entry.
+ */
+export async function createTransactionExpenseCategoryAction(
+  entityId: string,
+  formData: FormData,
+): Promise<{ id: string; name: string }> {
+  const session = await requireAuthSession();
+  const email = session.user?.email?.toLowerCase();
+  if (!email) {
+    redirect("/signin");
+  }
+
+  const name = String(formData.get("name") || "").trim();
+  if (!name) {
+    throw new Error("Category name is required.");
+  }
+
+  try {
+    const categoryId = await createEntityExpenseCategory(email, entityId, name);
+    return { id: categoryId, name };
+  } catch (error) {
+    if (!isDuplicateExpenseCategoryError(error)) {
+      throw error;
+    }
+  }
+
+  const normalizedName = name.toLowerCase().replace(/\s+/g, " ");
+  const expenseCategories = await listEntityExpenseCategories(email, entityId);
+  const existingCategory = expenseCategories.find(
+    (category) => category.name.toLowerCase().replace(/\s+/g, " ") === normalizedName,
+  );
+  if (!existingCategory) {
+    throw new Error("Unable to resolve the existing expense category.");
+  }
+
+  return {
+    id: existingCategory.id,
+    name: existingCategory.name,
+  };
 }

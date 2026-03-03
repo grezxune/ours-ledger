@@ -25,6 +25,7 @@ function mapRecurringExpense(item: Doc<"budgetRecurringExpenses">) {
     budgetId: item.budgetId,
     entityId: item.entityId,
     accountId: item.accountId,
+    categoryId: item.categoryId,
     name: item.name,
     amountCents: item.amountCents,
     cadence: item.cadence,

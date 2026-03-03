@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const proofPoints = [
@@ -51,16 +52,16 @@ export function MarketingLanding() {
               Finance operations built for teams, not spreadsheets.
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-foreground/80 sm:text-base">
-              Ours Ledger unifies household and business cash movement into one secure operating layer. Invite
+              Our Ledger unifies household and business cash movement into one secure operating layer. Invite
               collaborators, control permissions, and keep every transaction backed by context.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link className="rounded-xl bg-accent px-5 py-2.5 text-sm font-medium text-white" href="/signin">
-                Start Secure Workspace
-              </Link>
-              <a className="rounded-xl border border-line px-5 py-2.5 text-sm font-medium" href="#security">
-                Security Architecture
-              </a>
+              <Button asChild className="px-5 py-2.5" variant="primary">
+                <Link href="/signin">Start Secure Workspace</Link>
+              </Button>
+              <Button asChild className="px-5 py-2.5" variant="secondary">
+                <a href="#security">Security Architecture</a>
+              </Button>
             </div>
           </div>
           <Card className="reveal-up reveal-delay-1" title="Operating Snapshot">
@@ -86,7 +87,7 @@ export function MarketingLanding() {
       </section>
 
       <section className="reveal-up reveal-delay-2 grid gap-4 lg:grid-cols-[1.1fr_1fr]">
-        <Card title="How Teams Run Ours Ledger">
+        <Card title="How Teams Run Our Ledger">
           <ol className="space-y-3 text-sm leading-relaxed">
             {operatingFlow.map((step, idx) => (
               <li key={step} className="flex gap-3 rounded-xl border border-line bg-surface px-3 py-2">
@@ -107,9 +108,9 @@ export function MarketingLanding() {
             <p>Dedicated infrastructure controls for storage and delivery governance.</p>
           </div>
           <div className="mt-4">
-            <Link className="rounded-xl border border-line bg-surface px-4 py-2 text-sm font-medium" href="/signin">
-              Sign In
-            </Link>
+            <Button asChild variant="secondary">
+              <Link href="/signin">Sign In</Link>
+            </Button>
           </div>
         </Card>
       </section>

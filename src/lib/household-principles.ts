@@ -1,7 +1,7 @@
 /**
  * Product-level business assumptions for the shared-entity finance model.
  */
-export const PRODUCT_NAME = "Ours Ledger";
+export const PRODUCT_NAME = "Our Ledger";
 
 /**
  * Shared-ownership motto used throughout onboarding and marketing copy.

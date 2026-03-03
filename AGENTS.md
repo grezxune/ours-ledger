@@ -1,7 +1,7 @@
 # AGENTS.md (Project Local)
 
 ## Project Identity
-- Product name: Ours Ledger
+- Product name: Our Ledger
 - Target users: individuals and teams managing shared household or business finances
 - Core model: entity-first collaboration (`household`, `business`)
 - Motto: "What's mine is ours"
@@ -45,7 +45,7 @@
 - All token/session validation must happen server-side.
 
 ## Security Baseline (Financial App)
-- Treat Ours Ledger as a high-sensitivity financial application.
+- Treat Our Ledger as a high-sensitivity financial application.
 - Enforce deny-by-default authorization with least-privilege role checks on every protected operation.
 - Never trust client-supplied identity or role fields for authorization decisions.
 - Require server-side ownership checks for all entity, transaction, and document reads/writes.

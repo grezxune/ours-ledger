@@ -32,7 +32,7 @@ export async function createEntityAccount(
     name: string;
     currency: string;
     source: "manual" | "plaid";
-    institutionName?: string;
+    institutionId: string;
     plaidAccountId?: string;
   },
 ): Promise<string> {
@@ -42,6 +42,9 @@ export async function createEntityAccount(
   return client.mutation(api.accounts.mutations.create, {
     userId,
     entityId: asId<"entities">(entityId),
-    input,
+    input: {
+      ...input,
+      institutionId: asId<"entityInstitutions">(input.institutionId),
+    },
   });
 }

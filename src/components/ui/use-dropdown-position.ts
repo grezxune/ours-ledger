@@ -8,6 +8,9 @@ type DropdownPlacement = "up" | "down";
 interface DropdownPositionState {
   placement: DropdownPlacement;
   maxHeight: number;
+  top: number;
+  left: number;
+  width: number;
 }
 
 const EDGE_PADDING = 8;
@@ -39,6 +42,9 @@ export function useDropdownPosition(
   const [state, setState] = useState<DropdownPositionState>({
     placement: "down",
     maxHeight: FALLBACK_MAX_HEIGHT,
+    top: 0,
+    left: 0,
+    width: 0,
   });
 
   useEffect(() => {
@@ -49,7 +55,20 @@ export function useDropdownPosition(
       if (!anchorRect) return;
 
       const menuHeight = menuRef.current?.scrollHeight ?? FALLBACK_MAX_HEIGHT;
-      setState(calculateDropdownPosition(anchorRect.top, anchorRect.bottom, window.innerHeight, menuHeight));
+      const { placement, maxHeight } = calculateDropdownPosition(
+        anchorRect.top,
+        anchorRect.bottom,
+        window.innerHeight,
+        menuHeight,
+      );
+      const width = anchorRect.width;
+      const left = Math.max(EDGE_PADDING, Math.min(anchorRect.left, window.innerWidth - EDGE_PADDING - width));
+      const top =
+        placement === "down"
+          ? anchorRect.bottom + OFFSET
+          : Math.max(EDGE_PADDING, anchorRect.top - OFFSET - maxHeight);
+
+      setState({ placement, maxHeight, top, left, width });
     }
 
     const frame = window.requestAnimationFrame(measure);

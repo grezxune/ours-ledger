@@ -20,7 +20,7 @@ interface PlannedIncomeSourcesProps {
 }
 
 /**
- * Compact planned-income table with low-friction add/edit flow.
+ * Compact planned-income table with inline add row and modal edit flow.
  */
 export function PlannedIncomeSources({
   incomeSources,
@@ -29,17 +29,20 @@ export function PlannedIncomeSources({
   updateIncomeSourceAction,
   removeIncomeSourceAction,
 }: PlannedIncomeSourcesProps) {
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingIncomeSourceId, setEditingIncomeSourceId] = useState<string | null>(null);
   const [pendingDeleteIncomeSource, setPendingDeleteIncomeSource] = useState<BudgetIncomeSource | null>(null);
 
-  const editingIncomeSource = useMemo(() => incomeSources.find((item) => item.id === editingIncomeSourceId) || null, [incomeSources, editingIncomeSourceId]);
-  const formAction = editingIncomeSource ? updateIncomeSourceAction.bind(null, editingIncomeSource.id) : addIncomeSourceAction;
-  const formKey = editingIncomeSource ? `edit-${editingIncomeSource.id}` : "add-income-source";
+  const editingIncomeSource = useMemo(
+    () => incomeSources.find((item) => item.id === editingIncomeSourceId) || null,
+    [incomeSources, editingIncomeSourceId],
+  );
+  const inlineInputClass =
+    "h-8 border-0 border-b border-line/60 bg-transparent px-0 py-0 leading-5 ring-0 focus:border-b-accent focus:ring-0 focus-visible:ring-0";
+  const inlineSelectClass =
+    "flex h-8 items-center border-0 border-b border-line/60 bg-transparent px-0 py-0 pr-7 leading-5 ring-0 focus:border-b-accent focus:ring-0 focus-visible:ring-0";
 
-  function closeFormModal() {
+  function closeEditModal() {
     setEditingIncomeSourceId(null);
-    setIsFormModalOpen(false);
   }
 
   return (
@@ -51,133 +54,230 @@ export function PlannedIncomeSources({
 
       {incomeSources.length === 0 ? <p className="mt-3 text-sm text-foreground/70">No income sources yet.</p> : null}
 
-      {incomeSources.length > 0 ? (
-        <div className="mt-3">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-line/60 text-left text-xs uppercase tracking-[0.08em] text-foreground/70">
-                <th className="py-2 pr-2">Source</th>
-                <th className="py-2 pr-2">Amount</th>
-                <th className="py-2 pr-2">Cadence</th>
-                <th className="w-10 py-2 pr-0 text-right">
-                  <span className="sr-only">Row actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {incomeSources.map((item) => (
-                <tr className="align-top" key={item.id}>
-                  <td className="py-2 pr-2">
-                    <div className="font-medium">{item.name}</div>
-                    {item.notes ? <p className="mt-0.5 text-xs text-foreground/70">{item.notes}</p> : null}
-                  </td>
-                  <td className="py-2 pr-2">{formatIncomeCurrency(item.amountCents, currency)}</td>
-                  <td className="py-2 pr-2">{toCadenceLabel(item.cadence)}</td>
-                  <td className="w-10 py-2 pr-0">
-                    <div className="flex justify-end">
-                      <ActionMenu
-                        menuAriaLabel={`Income source actions for ${item.name}`}
-                        items={
-                          [
-                            {
-                              id: `edit-${item.id}`,
-                              label: "Edit",
-                              icon: <Pencil className="size-4" />,
-                              onSelect: () => {
-                                setEditingIncomeSourceId(item.id);
-                                setIsFormModalOpen(true);
-                              },
-                            },
-                            {
-                              id: `delete-${item.id}`,
-                              label: "Delete",
-                              icon: <Trash2 className="size-4" />,
-                              onSelect: () => setPendingDeleteIncomeSource(item),
-                              tone: "danger",
-                            },
-                          ] satisfies ActionMenuItem[]
-                        }
-                        triggerAriaLabel={`Open actions for ${item.name}`}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <form action={addIncomeSourceAction} className="mt-3 grid gap-2 md:hidden">
+        <InputField autoComplete="off" label="Source name" name="name" placeholder="Source name" required />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <InputField
+            label="Amount"
+            min="0.01"
+            name="amount"
+            placeholder="0.00"
+            required
+            step="0.01"
+            type="number"
+          />
+          <SelectField defaultValue="monthly" label="Cadence" name="cadence" options={[...BUDGET_PERIOD_OPTIONS]} />
         </div>
+        <InputField autoComplete="off" label="Notes" name="notes" placeholder="Notes (optional)" />
+        <div className="flex justify-end">
+          <Button ariaLabel="Add income source" startIcon={<CirclePlus className="size-4" />} type="submit">
+            Add income source
+          </Button>
+        </div>
+      </form>
+
+      {incomeSources.length > 0 ? (
+        <ul className="mt-4 space-y-2 md:hidden">
+          {incomeSources.map((item) => (
+            <li className="rounded-xl border border-line p-3" key={item.id}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 space-y-1">
+                  <p className="truncate text-sm font-medium">{item.name}</p>
+                  <p className="text-xs text-foreground/75">Cadence: {toCadenceLabel(item.cadence)}</p>
+                  <p className="text-xs font-medium text-foreground/90">{formatIncomeCurrency(item.amountCents, currency)}</p>
+                  {item.notes ? <p className="text-xs text-foreground/70">{item.notes}</p> : null}
+                </div>
+                <ActionMenu
+                  menuAriaLabel={`Income source actions for ${item.name}`}
+                  items={
+                    [
+                      {
+                        id: `edit-mobile-${item.id}`,
+                        label: "Edit",
+                        icon: <Pencil className="size-4" />,
+                        onSelect: () => setEditingIncomeSourceId(item.id),
+                      },
+                      {
+                        id: `delete-mobile-${item.id}`,
+                        label: "Delete",
+                        icon: <Trash2 className="size-4" />,
+                        onSelect: () => setPendingDeleteIncomeSource(item),
+                        tone: "danger",
+                      },
+                    ] satisfies ActionMenuItem[]
+                  }
+                  triggerAriaLabel={`Open actions for ${item.name}`}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : null}
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <Button
-          ariaLabel="Add income source"
-          onClick={() => {
-            setEditingIncomeSourceId(null);
-            setIsFormModalOpen(true);
-          }}
-          startIcon={<CirclePlus className="size-4" />}
-          type="button"
-          variant="secondary"
-        >
-          Add income source
-        </Button>
+      <form action={addIncomeSourceAction} className="hidden" id="add-income-source-form" />
+
+      <div className="mt-3 hidden md:block">
+        <table className="w-full table-fixed text-sm">
+          <thead>
+            <tr className="border-b border-line/60 text-left text-xs uppercase tracking-[0.08em] text-foreground/70">
+              <th className="w-[36%] py-2 pr-2">Source</th>
+              <th className="w-[24%] py-2 pr-2">Amount</th>
+              <th className="w-[24%] py-2 pr-2">Cadence</th>
+              <th className="w-10 py-2 pr-0 text-right">
+                <span className="sr-only">Row actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {incomeSources.map((item) => (
+              <tr className="align-top" key={item.id}>
+                <td className="py-2 pr-2">
+                  <div className="break-words font-medium">{item.name}</div>
+                  {item.notes ? <p className="mt-0.5 break-words text-xs text-foreground/70">{item.notes}</p> : null}
+                </td>
+                <td className="py-2 pr-2">{formatIncomeCurrency(item.amountCents, currency)}</td>
+                <td className="py-2 pr-2">{toCadenceLabel(item.cadence)}</td>
+                <td className="w-10 py-2 pr-0">
+                  <div className="flex justify-end">
+                    <ActionMenu
+                      menuAriaLabel={`Income source actions for ${item.name}`}
+                      items={
+                        [
+                          {
+                            id: `edit-${item.id}`,
+                            label: "Edit",
+                            icon: <Pencil className="size-4" />,
+                            onSelect: () => setEditingIncomeSourceId(item.id),
+                          },
+                          {
+                            id: `delete-${item.id}`,
+                            label: "Delete",
+                            icon: <Trash2 className="size-4" />,
+                            onSelect: () => setPendingDeleteIncomeSource(item),
+                            tone: "danger",
+                          },
+                        ] satisfies ActionMenuItem[]
+                      }
+                      triggerAriaLabel={`Open actions for ${item.name}`}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+            <tr className="border-t border-line/50 align-top">
+              <td className="px-1 py-1.5">
+                <InputField
+                  autoComplete="off"
+                  className={inlineInputClass}
+                  cornerStyle="none"
+                  form="add-income-source-form"
+                  label="Income source name"
+                  labelHidden
+                  name="name"
+                  placeholder="Source name"
+                  required
+                />
+              </td>
+              <td className="px-1 py-1.5">
+                <InputField
+                  className={inlineInputClass}
+                  cornerStyle="none"
+                  form="add-income-source-form"
+                  label="Income amount"
+                  labelHidden
+                  min="0.01"
+                  name="amount"
+                  placeholder="0.00"
+                  required
+                  step="0.01"
+                  type="number"
+                />
+              </td>
+              <td className="px-1 py-1.5">
+                <SelectField
+                  className={inlineSelectClass}
+                  cornerStyle="none"
+                  defaultValue="monthly"
+                  form="add-income-source-form"
+                  label="Income cadence"
+                  labelHidden
+                  name="cadence"
+                  options={[...BUDGET_PERIOD_OPTIONS]}
+                />
+              </td>
+              <td className="w-10 px-1 py-1.5 pr-0">
+                <div className="flex justify-end">
+                  <Button
+                    ariaLabel="Add income source"
+                    form="add-income-source-form"
+                    iconOnly
+                    startIcon={<CirclePlus className="size-4" />}
+                    type="submit"
+                  >
+                    <span className="sr-only">Add income source</span>
+                  </Button>
+                </div>
+              </td>
+            </tr>
+            <tr className="border-b border-line/50">
+              <td className="px-1 pb-1.5" colSpan={4}>
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                  <InputField
+                    autoComplete="off"
+                    className={`${inlineInputClass} text-xs`}
+                    cornerStyle="none"
+                    form="add-income-source-form"
+                    label="Income source notes"
+                    labelHidden
+                    name="notes"
+                    placeholder="Notes (optional)"
+                  />
+                  <p className="text-right text-xs text-foreground/75">Use the plus icon to save a new source.</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <Modal
-        onClose={closeFormModal}
-        open={isFormModalOpen}
-        title={editingIncomeSource ? "Edit income source" : "Add income source"}
-      >
-        <form action={formAction} className="grid gap-3" key={formKey}>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <InputField defaultValue={editingIncomeSource?.name || ""} label="Source Name" name="name" required />
-            <InputField
-              defaultValue={editingIncomeSource ? toAmountInputValue(editingIncomeSource.amountCents) : ""}
-              label="Amount"
-              min="0.01"
-              name="amount"
-              required
-              step="0.01"
-              type="number"
-            />
-            <SelectField
-              defaultValue={editingIncomeSource?.cadence || "monthly"}
-              label="Cadence"
-              name="cadence"
-              options={[...BUDGET_PERIOD_OPTIONS]}
-            />
-          </div>
-          <TextareaField defaultValue={editingIncomeSource?.notes || ""} label="Notes" name="notes" rows={2} />
-          <div className="flex flex-wrap gap-2">
-            <Button
-              ariaLabel={editingIncomeSource ? "Save income source changes" : "Save new income source"}
-              startIcon={<Save className="size-4" />}
-              type="submit"
-            >
-              {editingIncomeSource ? "Save changes" : "Save income source"}
-            </Button>
-            {editingIncomeSource ? (
+      <Modal onClose={closeEditModal} open={Boolean(editingIncomeSource)} title="Edit income source">
+        {editingIncomeSource ? (
+          <form action={updateIncomeSourceAction.bind(null, editingIncomeSource.id)} className="grid gap-3" key={`edit-${editingIncomeSource.id}`}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <InputField defaultValue={editingIncomeSource.name} label="Source Name" name="name" required />
+              <InputField
+                defaultValue={toAmountInputValue(editingIncomeSource.amountCents)}
+                label="Amount"
+                min="0.01"
+                name="amount"
+                required
+                step="0.01"
+                type="number"
+              />
+              <SelectField
+                defaultValue={editingIncomeSource.cadence}
+                label="Cadence"
+                name="cadence"
+                options={[...BUDGET_PERIOD_OPTIONS]}
+              />
+            </div>
+            <TextareaField defaultValue={editingIncomeSource.notes || ""} label="Notes" name="notes" rows={2} />
+            <div className="flex flex-wrap gap-2">
+              <Button ariaLabel="Save income source changes" startIcon={<Save className="size-4" />} type="submit">
+                Save changes
+              </Button>
               <Button
-                ariaLabel="Switch to add income source form"
-                onClick={() => setEditingIncomeSourceId(null)}
-                startIcon={<CirclePlus className="size-4" />}
+                ariaLabel="Cancel income source form"
+                onClick={closeEditModal}
+                startIcon={<X className="size-4" />}
                 type="button"
                 variant="secondary"
               >
-                New source
+                Cancel
               </Button>
-            ) : null}
-            <Button
-              ariaLabel="Cancel income source form"
-              onClick={closeFormModal}
-              startIcon={<X className="size-4" />}
-              type="button"
-              variant="secondary"
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
+            </div>
+          </form>
+        ) : null}
       </Modal>
 
       <ConfirmationModal

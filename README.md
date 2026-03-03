@@ -1,4 +1,4 @@
-# Ours Ledger
+# Our Ledger
 
 A shared-entity finance platform where users collaborate on household and business money in one place.
 
@@ -56,8 +56,8 @@ GOOGLE_MAPS_API_KEY=
 # Optional fallback for local/client-side integrations only
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
 
-# Dev credentials sign-in passphrase (default: ours-ledger)
-DEV_AUTH_PASSPHRASE=ours-ledger
+# Dev credentials sign-in passphrase (default: our-ledger)
+DEV_AUTH_PASSPHRASE=our-ledger
 
 # Comma-separated super admin emails
 SUPER_ADMIN_EMAILS=admin@example.com

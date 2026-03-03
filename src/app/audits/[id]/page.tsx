@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AuditRecordCard } from "@/components/audit-record-card";
 import { AppShell } from "@/components/layout/app-shell";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatAuditTimestamp, toAuditActionLabel, toAuditMetadataLabel } from "@/lib/audit-presentation";
 import { requireAuthSession } from "@/lib/auth/session";
@@ -27,17 +28,13 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
     <AppShell session={session}>
       <Card title="Audit Event Detail">
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <Link aria-label="Back to audits" className="rounded-lg border border-line px-3 py-1" href="/audits">
-            Back to Audits
-          </Link>
+          <Button asChild ariaLabel="Back to audits" className="rounded-lg px-3 py-1" variant="secondary">
+            <Link href="/audits">Back to Audits</Link>
+          </Button>
           {audit.entity ? (
-            <Link
-              aria-label={`Open ${audit.entity.name}`}
-              className="rounded-lg border border-line px-3 py-1"
-              href={`/entity/${audit.entity.id}`}
-            >
-              Open Entity
-            </Link>
+            <Button asChild ariaLabel={`Open ${audit.entity.name}`} className="rounded-lg px-3 py-1" variant="secondary">
+              <Link href={`/entity/${audit.entity.id}`}>Open Entity</Link>
+            </Button>
           ) : null}
         </div>
 

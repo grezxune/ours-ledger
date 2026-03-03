@@ -8,10 +8,27 @@ log:
   - 2026-02-19: Defined v1 scope as planning-only (separate from transactions and Plaid actuals).
   - 2026-02-19: Expanded requirements for expected remaining money, weekly/monthly/yearly periods, and entity section navigation (budget/transactions/members) with mobile-first behavior.
   - 2026-02-19: Added paid-from account requirements for recurring expenses, including in-context account creation and plaid/manual account sources.
+  - 2026-02-26: Clarified inline expense-category creation behavior to treat duplicate-name submissions as idempotent instead of surfacing uncaught runtime errors.
+  - 2026-02-26: Updated inline create behavior for category/institution/account modals to avoid full-page refresh and preserve in-progress form inputs.
+  - 2026-02-26: Standardized modal positioning to always open centered across mobile and desktop breakpoints.
+  - 2026-02-26: Required add-new sentinel options to remain available in relevant selects (category/account/institution) even when options already exist.
+  - 2026-02-26: Aligned institution creation UX with other add-new flows by opening institution creation in its own modal triggered from the Institution select add option.
+  - 2026-02-26: Removed standalone recurring-expense tile add-category/add-account buttons in favor of select-triggered add-new interactions.
+  - 2026-02-26: Added full recurring planned expense edit support from row actions (name/amount/cadence/category/account/notes) with persisted updates and audit logging.
+  - 2026-02-26: Standardized recurring planned expense list rendering to a compact table layout aligned with planned income source presentation.
+  - 2026-02-26: Updated recurring planned expense table to include dedicated category/account columns for faster row scanning.
+  - 2026-02-26: Standardized planned-income and recurring-expense creation UX to use inline input rows under tables (with notes in a secondary full-width row when no notes column exists).
+  - 2026-02-26: Refined inline planned-entry rows to use ghost-style borderless fields with tighter spacing, matching ledger-style transaction entry patterns.
+  - 2026-02-26: Updated inline planned-entry focus behavior to bottom-border-only emphasis with no rounded/full-border focus treatment.
+  - 2026-02-26: Updated inline planned-entry rows to remove border radius in unfocused and focused states via explicit square-corner field support.
+  - 2026-02-26: Added compatibility fallback for budget line-item updates when deployed Convex environments are missing `budgets/incomeMutations:*` functions.
+  - 2026-02-26: Standardized shared select behavior to use body-portal overlays with viewport-aware flipping/clamping and keyboard typeahead matching.
+  - 2026-02-26: Added responsive recurring-planned-expense mobile fallback layouts to prevent horizontal overflow and keep creation/edit actions usable on small screens.
+  - 2026-02-26: Brought planned-income responsive behavior into parity with recurring-expense patterns (stacked mobile rows/forms + compact desktop table rows).
 ---
 
 ## Problem
-Ours Ledger currently supports transaction capture and Plaid-imported actuals, but users cannot build a forward-looking budget for an entity. Users need a planning workspace where they can define expected income and recurring expense commitments before or independent of real transactions.
+Our Ledger currently supports transaction capture and Plaid-imported actuals, but users cannot build a forward-looking budget for an entity. Users need a planning workspace where they can define expected income and recurring expense commitments before or independent of real transactions.
 
 Without a budgeting module, users cannot:
 - Model expected weekly/monthly/yearly cash flow clearly.
@@ -23,7 +40,7 @@ Budget planning is a core behavior for both target entity types:
 - `household`: paycheck planning, rent/utilities, subscriptions, debt payments.
 - `business`: recurring revenue expectations, payroll, rent, software, contractor retainers.
 
-Adding an entity-scoped budget builder improves retention and product depth by enabling proactive planning, not just historical tracking. It also strengthens Ours Ledger’s positioning versus transaction-only tools.
+Adding an entity-scoped budget builder improves retention and product depth by enabling proactive planning, not just historical tracking. It also strengthens Our Ledger’s positioning versus transaction-only tools.
 
 ## Goals & KPIs
 Primary goals:
@@ -97,6 +114,12 @@ Core journeys:
   - `cadence` (`weekly`, `monthly`, `yearly`)
   - `category` (entity-defined or default taxonomy)
   - `notes`
+- Inline category creation from planning forms must handle duplicate-name submissions gracefully (no uncaught runtime error) and return users to the budget workflow.
+- Inline category/institution/account creation from planning modals must update options in place without a full-page refresh so unsaved form inputs remain intact.
+- Category/account/institution selects must keep an explicit add-new option available even when one or more existing options are present.
+- Institution add-new in account flows must be triggered from the Institution select option and open a dedicated modal (no separate inline/below-select add button).
+- Recurring planned expense tile must not include separate add-category/add-account buttons; those add-new flows are triggered from select options only.
+- Existing recurring planned expenses must support full edit flows (name, amount, cadence, category, paid-from account, notes) from row-level action menus.
 - System stores normalized period equivalents used to compute expected remaining money by selected budget period.
 
 ### Summary & Calculations
@@ -135,6 +158,17 @@ Core journeys:
 - Budget builder UI must follow `UxStyle.md` and support light/dark mode.
 - Use shared form primitives where applicable (`InputField`, `SelectField`, `TextareaField`).
 - Mobile-first, flex-based layout with no horizontal overflow on any viewport size.
+- Planned income and recurring planned expense lists should use compact table-style row density rather than padded card-per-row list items.
+- Recurring planned expense tables should include explicit category and paid-from account columns.
+- Planned income and recurring planned expense creation should happen via inline input rows beneath table data, not detached card blocks or creation modals.
+- For tables without a dedicated notes column, notes entry should be placed in a compact secondary row directly below the main input row.
+- Inline planned-entry rows should use borderless ghost-style fields and tight cell spacing, avoiding isolated rounded input boxes within the row.
+- Inline planned-entry fields should remain square in all states (no rounded corners when focused or unfocused).
+- Inline planned-entry focus states should use bottom-border-only emphasis (no full-border/ring focus outlines).
+- Shared modal workflows (including inline create modals) must open centered on all viewport sizes.
+- Shared select menus used in budget flows should render via `document.body` portal overlays, auto-flip up/down to stay visible, and support keyboard type-to-jump option matching.
+- Recurring planned expense displays and creation rows must gracefully stack on small screens instead of requiring horizontal scrolling.
+- Planned income displays and creation rows must follow the same responsive breakpoint strategy/pattern family as recurring planned expenses.
 - Inline validation and clear empty states:
   - no budget created
   - budget with zero items

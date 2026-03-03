@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FolderKanban, ReceiptText, Wallet } from "lucide-react";
 import { EntityShell } from "@/components/entity/entity-shell";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { requireAuthSession } from "@/lib/auth/session";
 import { listEntityBudgets } from "@/lib/data/budgets";
@@ -51,18 +52,22 @@ export default async function EntityDetailPage({ params }: EntityPageProps) {
               <p className="text-2xl font-semibold">
                 {formatCurrency(activeBudget.summary.expectedRemainingCents, entity.currency)}
               </p>
-              <Link aria-label="Open budget section" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm" href={`/entity/${id}/budget`}>
-                <Wallet aria-hidden className="size-4" />
-                Open Budget
-              </Link>
+              <Button asChild ariaLabel="Open budget section" className="mt-3 rounded-lg px-3 py-1" variant="secondary">
+                <Link href={`/entity/${id}/budget`}>
+                  <Wallet aria-hidden className="size-4" />
+                  Open Budget
+                </Link>
+              </Button>
             </>
           ) : (
             <>
               <p className="text-sm text-foreground/70">No budget created yet.</p>
-              <Link aria-label="Create a budget" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm" href={`/entity/${id}/budget`}>
-                <Wallet aria-hidden className="size-4" />
-                Create Budget
-              </Link>
+              <Button asChild ariaLabel="Create a budget" className="mt-3 rounded-lg px-3 py-1" variant="secondary">
+                <Link href={`/entity/${id}/budget`}>
+                  <Wallet aria-hidden className="size-4" />
+                  Create Budget
+                </Link>
+              </Button>
             </>
           )}
         </Card>
@@ -76,10 +81,12 @@ export default async function EntityDetailPage({ params }: EntityPageProps) {
             ))}
             {transactions.length === 0 ? <li className="text-foreground/70">No transactions yet.</li> : null}
           </ul>
-          <Link aria-label="Open transactions section" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm" href={`/entity/${id}/transactions`}>
-            <ReceiptText aria-hidden className="size-4" />
-            Open Transactions
-          </Link>
+          <Button asChild ariaLabel="Open transactions section" className="mt-3 rounded-lg px-3 py-1" variant="secondary">
+            <Link href={`/entity/${id}/transactions`}>
+              <ReceiptText aria-hidden className="size-4" />
+              Open Transactions
+            </Link>
+          </Button>
         </Card>
 
         <Card title="Recent Documents" className="xl:col-span-1">
@@ -91,10 +98,12 @@ export default async function EntityDetailPage({ params }: EntityPageProps) {
             ))}
             {documents.length === 0 ? <li className="text-foreground/70">No documents uploaded yet.</li> : null}
           </ul>
-          <Link aria-label="Open manage tools section" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm" href={`/entity/${id}/manage`}>
-            <FolderKanban aria-hidden className="size-4" />
-            Open Manage Tools
-          </Link>
+          <Button asChild ariaLabel="Open manage tools section" className="mt-3 rounded-lg px-3 py-1" variant="secondary">
+            <Link href={`/entity/${id}/manage`}>
+              <FolderKanban aria-hidden className="size-4" />
+              Open Manage Tools
+            </Link>
+          </Button>
         </Card>
       </div>
     </EntityShell>

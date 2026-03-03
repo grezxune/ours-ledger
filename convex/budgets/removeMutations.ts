@@ -51,6 +51,7 @@ export const removeRecurringExpense = mutation({
         budgetId: String(item.budgetId),
         recurringExpenseId: String(item._id),
         accountId: item.accountId ? String(item.accountId) : "",
+        expenseCategoryId: item.categoryId ? String(item.categoryId) : "",
         name: item.name,
         amountCents: String(item.amountCents),
         cadence: item.cadence,

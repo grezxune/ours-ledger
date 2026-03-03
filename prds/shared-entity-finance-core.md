@@ -15,7 +15,7 @@ log:
 Most personal budgeting tools optimize for one user with optional partner access, while business accounting tools optimize for bookkeeping depth over collaborative day-to-day cash visibility. Teams that need shared control across household and business finances lack a unified, role-aware workspace for planning and transaction execution.
 
 ## Business Context
-Ours Ledger will shift from a household-only concept to an entity-based financial operating system. Users can create either a household or business entity, invite collaborators, and manage all income/expense flows with shared visibility.
+Our Ledger will shift from a household-only concept to an entity-based financial operating system. Users can create either a household or business entity, invite collaborators, and manage all income/expense flows with shared visibility.
 
 The product is opinionated toward transparent collaboration and practical execution:
 
@@ -32,7 +32,7 @@ Leading consumer budgeting products reinforce high demand for simple collaborati
 - Rocket Money: recurring bill/subscription visibility and savings-oriented automation. Source: [Rocket Money Features](https://www.rocketmoney.com/features)
 - Quicken Simplifi: spend planning and proactive cash monitoring. Source: [Quicken Simplifi](https://www.quicken.com/products/simplifi/)
 
-These patterns inform Ours Ledger’s shared-entity roadmap while extending scope to business entities and role-based collaboration.
+These patterns inform Our Ledger’s shared-entity roadmap while extending scope to business entities and role-based collaboration.
 
 ## Goals & KPIs
 Primary goals:

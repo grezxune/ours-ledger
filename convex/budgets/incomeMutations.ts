@@ -11,6 +11,14 @@ const incomeSourceInputValidator = v.object({
   cadence: budgetPeriodValidator,
   notes: v.optional(v.string()),
 });
+const recurringExpenseInputValidator = v.object({
+  name: v.string(),
+  amountCents: v.number(),
+  cadence: budgetPeriodValidator,
+  accountId: v.id("entityAccounts"),
+  categoryId: v.id("entityExpenseCategories"),
+  notes: v.optional(v.string()),
+});
 
 function requirePositiveAmount(amountCents: number) {
   if (!Number.isFinite(amountCents) || amountCents <= 0) {
@@ -61,6 +69,74 @@ export const updateIncomeSource = mutation({
         previousAmountCents: String(incomeSource.amountCents),
         name: args.input.name.trim(),
         amountCents: String(args.input.amountCents),
+        cadence: args.input.cadence,
+        notes: args.input.notes?.trim() || "",
+      },
+    });
+  },
+});
+
+/**
+ * Updates a planned recurring expense line on a budget.
+ */
+export const updateRecurringExpense = mutation({
+  args: {
+    userId: v.id("users"),
+    recurringExpenseId: v.id("budgetRecurringExpenses"),
+    input: recurringExpenseInputValidator,
+  },
+  handler: async (ctx, args) => {
+    requirePositiveAmount(args.input.amountCents);
+    const recurringExpense = await ctx.db.get(args.recurringExpenseId);
+    if (!recurringExpense) {
+      throw new Error("Recurring expense not found.");
+    }
+
+    await requireMembership(ctx, args.userId, recurringExpense.entityId);
+    const account = await ctx.db.get(args.input.accountId);
+    if (!account || account.entityId !== recurringExpense.entityId) {
+      throw new Error("Selected account is not available for this entity.");
+    }
+    const expenseCategory = await ctx.db.get(args.input.categoryId);
+    if (!expenseCategory || expenseCategory.entityId !== recurringExpense.entityId) {
+      throw new Error("Selected expense category is not available for this entity.");
+    }
+
+    const now = nowIso();
+    await ctx.db.patch(args.recurringExpenseId, {
+      name: args.input.name.trim(),
+      amountCents: args.input.amountCents,
+      cadence: args.input.cadence,
+      accountId: args.input.accountId,
+      categoryId: args.input.categoryId,
+      category: expenseCategory.name,
+      notes: args.input.notes,
+      updatedAt: now,
+    });
+
+    await ctx.db.patch(recurringExpense.budgetId, {
+      updatedAt: now,
+      updatedByUserId: args.userId,
+    });
+
+    await recordAuditEvent(ctx, {
+      actorUserId: args.userId,
+      entityId: recurringExpense.entityId,
+      action: "budget.recurring_expense_updated",
+      target: recurringExpense._id,
+      metadata: {
+        budgetId: String(recurringExpense.budgetId),
+        recurringExpenseId: String(recurringExpense._id),
+        previousName: recurringExpense.name,
+        previousAmountCents: String(recurringExpense.amountCents),
+        previousAccountId: recurringExpense.accountId ? String(recurringExpense.accountId) : "",
+        previousExpenseCategoryId: recurringExpense.categoryId ? String(recurringExpense.categoryId) : "",
+        previousCategory: recurringExpense.category || "",
+        name: args.input.name.trim(),
+        amountCents: String(args.input.amountCents),
+        accountId: String(args.input.accountId),
+        expenseCategoryId: String(args.input.categoryId),
+        category: expenseCategory.name,
         cadence: args.input.cadence,
         notes: args.input.notes?.trim() || "",
       },

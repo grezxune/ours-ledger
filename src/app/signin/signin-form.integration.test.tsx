@@ -7,6 +7,8 @@ describe("sign in form", () => {
     const html = renderToStaticMarkup(<SignInForm />);
 
     expect(html).toContain("Continue with Google");
+    expect(html).toContain('aria-label="Continue with Google sign in"');
+    expect(html).toContain("text-[#1f1f1f]");
     expect(html).toContain("Developer access");
     expect(html).toContain("Dev Passphrase");
   });

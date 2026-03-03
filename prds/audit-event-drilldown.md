@@ -12,7 +12,7 @@ log:
 Audit rows on the dashboard are currently non-clickable summary lines. Users cannot open one event to inspect the complete operational context for what changed.
 
 ## Business Context
-Ours Ledger is a shared finance platform with high-sensitivity financial operations. Strong event auditability improves trust, operator confidence, and support/debug workflows.
+Our Ledger is a shared finance platform with high-sensitivity financial operations. Strong event auditability improves trust, operator confidence, and support/debug workflows.
 
 ## Goals & KPIs
 - Enable users to click an audit item and open a detail view.

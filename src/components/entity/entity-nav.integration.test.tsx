@@ -14,7 +14,15 @@ describe("entity nav", () => {
     expect(html).toContain("Budget");
     expect(html).toContain("Transactions");
     expect(html).toContain("Members");
-    expect(html).toContain("Entity Menu");
+    expect(html).toContain("aria-label=\"Open entity section menu\"");
     expect(html).toContain("aria-expanded=\"false\"");
+  });
+
+  it("marks only the route-matched section as active", () => {
+    const html = renderToStaticMarkup(<EntityNav entityId="entity_1" role="owner" />);
+
+    expect(html).toMatch(/aria-current="page"[^>]*href="\/entity\/entity_1\/budget"/);
+    expect(html).not.toMatch(/aria-current="page"[^>]*href="\/entity\/entity_1"/);
+    expect(html.match(/aria-current=\"page\"/g)?.length).toBe(1);
   });
 });

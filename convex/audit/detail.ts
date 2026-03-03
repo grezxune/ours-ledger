@@ -24,6 +24,8 @@ const METADATA_REFERENCE_TABLES: Record<string, TableNames> = {
   entityId: "entities",
   budgetId: "entityBudgets",
   accountId: "entityAccounts",
+  institutionId: "entityInstitutions",
+  expenseCategoryId: "entityExpenseCategories",
   incomeSourceId: "budgetIncomeSources",
   recurringExpenseId: "budgetRecurringExpenses",
   transactionId: "transactions",
@@ -35,6 +37,8 @@ const METADATA_REFERENCE_TABLES: Record<string, TableNames> = {
 function resolveTargetTable(action: string): TableNames | null {
   if (action.startsWith("entity.")) return "entities";
   if (action.startsWith("account.")) return "entityAccounts";
+  if (action.startsWith("institution.")) return "entityInstitutions";
+  if (action.startsWith("expense_category.")) return "entityExpenseCategories";
   if (action.startsWith("transaction.")) return "transactions";
   if (action === "budget.created") return "entityBudgets";
   if (action.startsWith("budget.income_source_")) return "budgetIncomeSources";

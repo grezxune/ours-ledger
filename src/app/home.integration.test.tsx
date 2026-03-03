@@ -1,5 +1,10 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+
+mock.module("next/navigation", () => ({
+  usePathname: () => "/",
+}));
+
 import { AppShell } from "@/components/layout/app-shell";
 
 describe("app shell", () => {
@@ -22,7 +27,7 @@ describe("app shell", () => {
 
     expect(html).toContain("Create Entity");
     expect(html).toContain("Audits");
-    expect(html).toContain("Admin Storage");
+    expect(html).toContain("Admin");
     expect(html).toContain("Account menu");
     expect(html).toMatch(/<details[^>]*>\s*<summary[^>]*aria-label="Account menu"/);
     expect(html).toContain("Sign Out");

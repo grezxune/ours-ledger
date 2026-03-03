@@ -45,7 +45,6 @@ export default async function Home() {
     listUserInvitations(userEmail),
     listAuditEvents(userEmail, 8),
   ]);
-  const entityLinkClass = "inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm";
 
   return (
     <AppShell session={session}>
@@ -65,34 +64,50 @@ export default async function Home() {
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Link aria-label={`Open ${entity.name} overview`} className={entityLinkClass} href={`/entity/${entity.id}`}>
-                        <Eye aria-hidden className="size-4" />
-                        View
-                      </Link>
-                      <Link
-                        aria-label={`Open ${entity.name} budget`}
-                        className={entityLinkClass}
-                        href={`/entity/${entity.id}/budget`}
+                      <Button
+                        asChild
+                        ariaLabel={`Open ${entity.name} overview`}
+                        className="rounded-lg px-3 py-1"
+                        variant="secondary"
                       >
-                        <Wallet aria-hidden className="size-4" />
-                        Budget
-                      </Link>
-                      <Link
-                        aria-label={`Open ${entity.name} transactions`}
-                        className={entityLinkClass}
-                        href={`/entity/${entity.id}/transactions`}
+                        <Link href={`/entity/${entity.id}`}>
+                          <Eye aria-hidden className="size-4" />
+                          View
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        ariaLabel={`Open ${entity.name} budget`}
+                        className="rounded-lg px-3 py-1"
+                        variant="secondary"
                       >
-                        <ReceiptText aria-hidden className="size-4" />
-                        Transactions
-                      </Link>
-                      <Link
-                        aria-label={`Open ${entity.name} members`}
-                        className={entityLinkClass}
-                        href={`/entity/${entity.id}/members`}
+                        <Link href={`/entity/${entity.id}/budget`}>
+                          <Wallet aria-hidden className="size-4" />
+                          Budget
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        ariaLabel={`Open ${entity.name} transactions`}
+                        className="rounded-lg px-3 py-1"
+                        variant="secondary"
                       >
-                        <Users aria-hidden className="size-4" />
-                        Members
-                      </Link>
+                        <Link href={`/entity/${entity.id}/transactions`}>
+                          <ReceiptText aria-hidden className="size-4" />
+                          Transactions
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        ariaLabel={`Open ${entity.name} members`}
+                        className="rounded-lg px-3 py-1"
+                        variant="secondary"
+                      >
+                        <Link href={`/entity/${entity.id}/members`}>
+                          <Users aria-hidden className="size-4" />
+                          Members
+                        </Link>
+                      </Button>
                     </div>
                   </div>
                 </li>
@@ -124,13 +139,9 @@ export default async function Home() {
 
       <Card title="Recent Audit Events">
         <AuditEventList emptyMessage="No audit events recorded yet." events={audits} />
-        <Link
-          aria-label="Open all audits"
-          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1 text-sm"
-          href="/audits"
-        >
-          View All Audits
-        </Link>
+        <Button asChild ariaLabel="Open all audits" className="mt-3 rounded-lg px-3 py-1" variant="secondary">
+          <Link href="/audits">View All Audits</Link>
+        </Button>
       </Card>
     </AppShell>
   );
