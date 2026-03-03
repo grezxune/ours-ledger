@@ -6,6 +6,7 @@ import { resolveAuthSecret } from "@/lib/auth/secret";
 
 function buildProviders() {
   const providers = [];
+  const isProduction = process.env.NODE_ENV === "production";
 
   if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
     providers.push(
@@ -16,31 +17,33 @@ function buildProviders() {
     );
   }
 
-  providers.push(
-    CredentialsProvider({
-      name: "Dev Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        name: { label: "Display Name", type: "text" },
-        passphrase: { label: "Passphrase", type: "password" },
-      },
-      async authorize(credentials) {
-        const email = credentials?.email?.trim().toLowerCase();
-        const passphrase = credentials?.passphrase;
-        const allowedPassphrase = process.env.DEV_AUTH_PASSPHRASE ?? "our-ledger";
-        if (!email || passphrase !== allowedPassphrase) {
-          return null;
-        }
+  if (!isProduction) {
+    providers.push(
+      CredentialsProvider({
+        name: "Dev Credentials",
+        credentials: {
+          email: { label: "Email", type: "email" },
+          name: { label: "Display Name", type: "text" },
+          passphrase: { label: "Passphrase", type: "password" },
+        },
+        async authorize(credentials) {
+          const email = credentials?.email?.trim().toLowerCase();
+          const passphrase = credentials?.passphrase;
+          const allowedPassphrase = process.env.DEV_AUTH_PASSPHRASE;
+          if (!allowedPassphrase || !email || passphrase !== allowedPassphrase) {
+            return null;
+          }
 
-        return {
-          id: email,
-          email,
-          name: credentials?.name || email.split("@")[0],
-          platformRole: resolvePlatformRole(email),
-        };
-      },
-    }),
-  );
+          return {
+            id: email,
+            email,
+            name: credentials?.name || email.split("@")[0],
+            platformRole: resolvePlatformRole(email),
+          };
+        },
+      }),
+    );
+  }
 
   return providers;
 }

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "../_generated/server";
+import { authenticatedQuery } from "../lib/authFunctions";
 import type { Doc, Id } from "../_generated/dataModel";
 import type { QueryCtx } from "../_generated/server";
 import { requireMembership } from "../lib/permissions";
@@ -89,7 +89,7 @@ async function loadBudgetDetails(
 /**
  * Lists budgets and computed expected-remaining summaries for an entity.
  */
-export const listByEntity = query({
+export const listByEntity = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),
@@ -110,7 +110,7 @@ export const listByEntity = query({
 /**
  * Loads one budget with line items and expected-remaining summary.
  */
-export const getBudgetById = query({
+export const getBudgetById = authenticatedQuery({
   args: {
     userId: v.id("users"),
     budgetId: v.id("entityBudgets"),

@@ -1,6 +1,6 @@
 import "server-only";
 import { api } from "@convex/_generated/api";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { ensureUser } from "@/lib/data/users";
 
 export interface EntityInstitution {
@@ -21,7 +21,7 @@ async function requireUserId(userEmail: string) {
  */
 export async function listEntityInstitutions(userEmail: string, entityId: string): Promise<EntityInstitution[]> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.institutions.queries.listByEntity, {
     userId,
@@ -34,7 +34,7 @@ export async function listEntityInstitutions(userEmail: string, entityId: string
  */
 export async function createEntityInstitution(userEmail: string, entityId: string, name: string): Promise<string> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.mutation(api.institutions.mutations.create, {
     userId,

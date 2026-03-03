@@ -1,4 +1,4 @@
-import { query } from "../_generated/server";
+import { authenticatedQuery } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { requireOwner } from "../lib/permissions";
 import { requireUserById } from "../lib/users";
@@ -26,7 +26,7 @@ function mapInvitation(invitation: {
 /**
  * Lists invitations by entity for owners.
  */
-export const listEntityInvitations = query({
+export const listEntityInvitations = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),
@@ -46,7 +46,7 @@ export const listEntityInvitations = query({
 /**
  * Lists invitations addressed to the current user.
  */
-export const listUserInvitations = query({
+export const listUserInvitations = authenticatedQuery({
   args: {
     userId: v.id("users"),
   },

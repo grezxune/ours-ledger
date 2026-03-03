@@ -21,18 +21,9 @@ describe("resolveAuthSecret", () => {
     expect(secret).toBe("auth-secret");
   });
 
-  it("derives a deterministic fallback when no secret is configured", () => {
-    const logger = { warn: () => undefined };
-    const env = {
-      NODE_ENV: "production",
-      NEXTAUTH_URL: "https://our-ledger.example",
-      HOSTNAME: "app-server-1",
-    };
-    const first = resolveAuthSecret(env, logger);
-    const second = resolveAuthSecret(env, logger);
-
-    expect(first).toBe(second);
-    expect(first.length).toBeGreaterThan(20);
+  it("throws when no secret is configured", () => {
+    expect(() => resolveAuthSecret({ NODE_ENV: "production" })).toThrow(
+      "NEXTAUTH_SECRET or AUTH_SECRET must be configured.",
+    );
   });
 });
-

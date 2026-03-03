@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { recordAuditEvent } from "../lib/audit";
 import { requireMembership } from "../lib/permissions";
 import { nowIso } from "../lib/time";
@@ -15,7 +15,7 @@ function normalizeInstitutionName(name: string): string {
 /**
  * Creates an entity-scoped institution entry for account selection.
  */
-export const create = mutation({
+export const create = authenticatedMutation({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

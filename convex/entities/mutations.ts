@@ -1,4 +1,4 @@
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { recordAuditEvent } from "../lib/audit";
 import { requireOwner } from "../lib/permissions";
@@ -26,7 +26,7 @@ const updateEntityInputValidator = v.object({
 /**
  * Creates a new entity and owner membership.
  */
-export const create = mutation({
+export const create = authenticatedMutation({
   args: {
     userId: v.id("users"),
     input: entityInputValidator,
@@ -72,7 +72,7 @@ export const create = mutation({
 /**
  * Updates owner-managed entity profile fields.
  */
-export const update = mutation({
+export const update = authenticatedMutation({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

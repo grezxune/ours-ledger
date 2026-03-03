@@ -1,4 +1,4 @@
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { recordAuditEvent } from "../lib/audit";
 import { requireMembership } from "../lib/permissions";
@@ -34,7 +34,7 @@ function mapDocument(document: {
 /**
  * Stores document metadata after upload has completed.
  */
-export const createUploadedDocument = mutation({
+export const createUploadedDocument = authenticatedMutation({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

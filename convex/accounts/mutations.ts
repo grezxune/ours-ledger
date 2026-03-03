@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { recordAuditEvent } from "../lib/audit";
 import { requireMembership } from "../lib/permissions";
 import { nowIso } from "../lib/time";
@@ -16,7 +16,7 @@ const createAccountInputValidator = v.object({
 /**
  * Creates a manual or plaid-linked account reference for budget attribution.
  */
-export const create = mutation({
+export const create = authenticatedMutation({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

@@ -1,5 +1,7 @@
 import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
+import type { UserIdentity } from "convex/server";
+import { requireUserById } from "./users";
 
 type Context = QueryCtx | MutationCtx;
 
@@ -7,10 +9,36 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-async function getAuthEmail(ctx: Context): Promise<string | null> {
-  const identity = await ctx.auth.getUserIdentity();
-  const email = identity?.email ?? identity?.tokenIdentifier;
+function getIdentityEmail(identity: UserIdentity | null): string | null {
+  const email = identity?.email;
   return email ? normalizeEmail(email) : null;
+}
+
+function getIdentityPlatformRole(identity: UserIdentity | null): "user" | "super_admin" {
+  return identity?.platformRole === "super_admin" ? "super_admin" : "user";
+}
+
+export async function getAuthIdentity(ctx: Context): Promise<UserIdentity | null> {
+  return ctx.auth.getUserIdentity();
+}
+
+export async function requireAuthIdentity(ctx: Context): Promise<UserIdentity> {
+  const identity = await getAuthIdentity(ctx);
+  if (!identity) {
+    throw new Error("Authentication required.");
+  }
+
+  const email = getIdentityEmail(identity);
+  if (!email) {
+    throw new Error("Authenticated identity is missing an email claim.");
+  }
+
+  return identity;
+}
+
+async function getAuthEmail(ctx: Context): Promise<string | null> {
+  const identity = await getAuthIdentity(ctx);
+  return getIdentityEmail(identity);
 }
 
 async function getUserByEmail(ctx: Context, email: string): Promise<Doc<"users"> | null> {
@@ -78,15 +106,30 @@ export async function requireOwnership<T extends { userId: Id<"users"> }>(
 }
 
 export async function requirePremium(ctx: Context): Promise<Doc<"users">> {
-  const user = await requireAuth(ctx);
-  if (user.platformRole !== "super_admin") {
+  const identity = await requireAuthIdentity(ctx);
+  const role = getIdentityPlatformRole(identity);
+  if (role !== "super_admin") {
     throw new Error("Premium access required.");
   }
 
+  const user = await requireAuth(ctx);
   return user;
 }
 
 export async function hasPremiumAccess(ctx: Context): Promise<boolean> {
-  const user = await getAuthUser(ctx);
-  return user?.platformRole === "super_admin";
+  const identity = await getAuthIdentity(ctx);
+  return getIdentityPlatformRole(identity) === "super_admin";
+}
+
+export async function requireSuperAdminByUserId(
+  ctx: Context,
+  requestedUserId?: Id<"users">,
+): Promise<Doc<"users">> {
+  const userId = await requireAuthenticatedUserId(ctx, requestedUserId);
+  const user = await requireUserById(ctx, userId);
+  if (user.platformRole !== "super_admin") {
+    throw new Error("Super admin access required.");
+  }
+
+  return user;
 }

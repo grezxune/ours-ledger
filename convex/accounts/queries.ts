@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "../_generated/server";
+import { authenticatedQuery } from "../lib/authFunctions";
 import { requireMembership } from "../lib/permissions";
 
 function mapAccount(account: {
@@ -31,7 +31,7 @@ function mapAccount(account: {
 /**
  * Lists linked accounts for an authorized entity member.
  */
-export const listByEntity = query({
+export const listByEntity = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

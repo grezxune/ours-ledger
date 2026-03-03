@@ -1,9 +1,9 @@
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { recordAuditEvent } from "../lib/audit";
 import { requireMembership } from "../lib/permissions";
 
-export const removeIncomeSource = mutation({
+export const removeIncomeSource = authenticatedMutation({
   args: {
     userId: v.id("users"),
     incomeSourceId: v.id("budgetIncomeSources"),
@@ -31,7 +31,7 @@ export const removeIncomeSource = mutation({
   },
 });
 
-export const removeRecurringExpense = mutation({
+export const removeRecurringExpense = authenticatedMutation({
   args: {
     userId: v.id("users"),
     recurringExpenseId: v.id("budgetRecurringExpenses"),

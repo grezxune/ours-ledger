@@ -7,7 +7,7 @@ import type {
   TransactionStatus,
   TransactionType,
 } from "@/lib/domain/types";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { ensureUser } from "@/lib/data/users";
 
 interface TransactionInput {
@@ -32,7 +32,7 @@ async function requireUserId(userEmail: string) {
  */
 export async function listTransactions(userEmail: string, entityId: string): Promise<LedgerTransaction[]> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.ledger.queries.listByEntity, {
     userId,
@@ -49,7 +49,7 @@ export async function createTransaction(
   input: TransactionInput,
 ): Promise<LedgerTransaction> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.mutation(api.ledger.mutations.create, {
     userId,

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { recordAuditEvent } from "../lib/audit";
 import { requireMembership } from "../lib/permissions";
 import { nowIso } from "../lib/time";
@@ -29,7 +29,7 @@ function requirePositiveAmount(amountCents: number) {
 /**
  * Updates a planned income source line on a budget.
  */
-export const updateIncomeSource = mutation({
+export const updateIncomeSource = authenticatedMutation({
   args: {
     userId: v.id("users"),
     incomeSourceId: v.id("budgetIncomeSources"),
@@ -79,7 +79,7 @@ export const updateIncomeSource = mutation({
 /**
  * Updates a planned recurring expense line on a budget.
  */
-export const updateRecurringExpense = mutation({
+export const updateRecurringExpense = authenticatedMutation({
   args: {
     userId: v.id("users"),
     recurringExpenseId: v.id("budgetRecurringExpenses"),

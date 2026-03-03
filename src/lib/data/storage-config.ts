@@ -1,7 +1,7 @@
 import "server-only";
 import { api } from "@convex/_generated/api";
 import type { StorageConfiguration } from "@/lib/domain/types";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { ensureUser } from "@/lib/data/users";
 
 interface StorageConfigInput {
@@ -14,8 +14,8 @@ interface StorageConfigInput {
 /**
  * Returns the active storage configuration.
  */
-export async function getStorageConfiguration(): Promise<StorageConfiguration | null> {
-  const client = createConvexClient();
+export async function getStorageConfiguration(userEmail: string): Promise<StorageConfiguration | null> {
+  const client = await createAuthenticatedConvexClient(userEmail);
   return client.query(api.storage.queries.getActive, {});
 }
 
@@ -28,7 +28,7 @@ export async function upsertStorageConfiguration(
 ): Promise<StorageConfiguration> {
   const user = await ensureUser(userEmail);
   const userId = asId<"users">(user.id);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.mutation(api.storage.mutations.upsertActive, {
     userId,

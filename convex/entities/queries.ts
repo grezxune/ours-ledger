@@ -1,4 +1,4 @@
-import { query } from "../_generated/server";
+import { authenticatedQuery } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { requireMembership, requireOwner } from "../lib/permissions";
 import { requireUserById } from "../lib/users";
@@ -20,7 +20,7 @@ function mapMembership(
 /**
  * Lists entities visible to the user.
  */
-export const listForUser = query({
+export const listForUser = authenticatedQuery({
   args: {
     userId: v.id("users"),
   },
@@ -52,7 +52,7 @@ export const listForUser = query({
 /**
  * Loads one entity visible to the user.
  */
-export const getForUser = query({
+export const getForUser = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),
@@ -71,7 +71,7 @@ export const getForUser = query({
 /**
  * Validates and returns membership for user/entity.
  */
-export const getMembershipForUser = query({
+export const getMembershipForUser = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),
@@ -86,7 +86,7 @@ export const getMembershipForUser = query({
 /**
  * Validates and returns owner membership for user/entity.
  */
-export const requireOwnerForUser = query({
+export const requireOwnerForUser = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),
@@ -101,7 +101,7 @@ export const requireOwnerForUser = query({
 /**
  * Lists entity members for authorized collaborators.
  */
-export const listMembersForEntity = query({
+export const listMembersForEntity = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

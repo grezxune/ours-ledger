@@ -32,7 +32,7 @@ function GoogleMark() {
 /**
  * Sign-in form for NextAuth credentials and Google provider.
  */
-export function SignInForm() {
+export function SignInForm({ showDeveloperAccess = true }: { showDeveloperAccess?: boolean }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [passphrase, setPassphrase] = useState("");
@@ -76,55 +76,59 @@ export function SignInForm() {
         <span>{isGoogleLoading ? "Redirecting..." : "Continue with Google"}</span>
       </Button>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-line" />
+      {showDeveloperAccess ? (
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-line" />
+          </div>
+          <p className="relative mx-auto w-fit bg-surface px-3 text-xs uppercase tracking-[0.14em] text-foreground/60">
+            Developer access
+          </p>
         </div>
-        <p className="relative mx-auto w-fit bg-surface px-3 text-xs uppercase tracking-[0.14em] text-foreground/60">
-          Developer access
-        </p>
-      </div>
+      ) : null}
 
-      <form
-        onSubmit={async (event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          await handleCredentialsSignIn(formData);
-        }}
-        className="rounded-2xl border border-line/80 bg-surface-muted/35 p-4"
-      >
-        <div className="grid gap-3">
-          <InputField
-            label="Email"
-            name="email"
-            required
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <InputField
-            label="Display Name"
-            name="name"
-            required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-          <InputField
-            label="Dev Passphrase"
-            name="passphrase"
-            required
-            type="password"
-            value={passphrase}
-            onChange={(event) => setPassphrase(event.target.value)}
-          />
-        </div>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <div className="mt-3">
-          <Button ariaLabel="Sign in with developer credentials" startIcon={<LogIn className="size-4" />} type="submit">
-            Sign In
-          </Button>
-        </div>
-      </form>
+      {showDeveloperAccess ? (
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            await handleCredentialsSignIn(formData);
+          }}
+          className="rounded-2xl border border-line/80 bg-surface-muted/35 p-4"
+        >
+          <div className="grid gap-3">
+            <InputField
+              label="Email"
+              name="email"
+              required
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <InputField
+              label="Display Name"
+              name="name"
+              required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+            <InputField
+              label="Dev Passphrase"
+              name="passphrase"
+              required
+              type="password"
+              value={passphrase}
+              onChange={(event) => setPassphrase(event.target.value)}
+            />
+          </div>
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          <div className="mt-3">
+            <Button ariaLabel="Sign in with developer credentials" startIcon={<LogIn className="size-4" />} type="submit">
+              Sign In
+            </Button>
+          </div>
+        </form>
+      ) : null}
     </div>
   );
 }

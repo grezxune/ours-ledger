@@ -1,8 +1,7 @@
-import { mutation } from "../_generated/server";
+import { superAdminMutation } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { recordAuditEvent } from "../lib/audit";
 import { nowIso } from "../lib/time";
-import { requireUserById } from "../lib/users";
 
 function mapStorageConfig(config: {
   _id: string;
@@ -27,7 +26,7 @@ function mapStorageConfig(config: {
 /**
  * Upserts non-secret storage configuration values.
  */
-export const upsertActive = mutation({
+export const upsertActive = superAdminMutation({
   args: {
     userId: v.id("users"),
     bucket: v.string(),
@@ -36,8 +35,6 @@ export const upsertActive = mutation({
     cloudFrontDomain: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireUserById(ctx, args.userId);
-
     const existing = (await ctx.db.query("storageConfigurations").collect())[0];
     const updatedAt = nowIso();
 

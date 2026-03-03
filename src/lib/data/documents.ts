@@ -2,7 +2,7 @@ import "server-only";
 import { api } from "@convex/_generated/api";
 import type { EntityDocument } from "@/lib/domain/types";
 import { uploadDocumentToS3 } from "@/lib/aws/document-upload";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { getStorageConfiguration } from "@/lib/data/storage-config";
 import { ensureUser } from "@/lib/data/users";
 
@@ -21,7 +21,7 @@ async function requireUserId(userEmail: string) {
  */
 export async function listDocuments(userEmail: string, entityId: string): Promise<EntityDocument[]> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.documents.queries.listByEntity, {
     userId,
@@ -38,7 +38,7 @@ export async function uploadDocument(
   input: DocumentInput,
 ): Promise<EntityDocument> {
   const userId = await requireUserId(userEmail);
-  const storage = await getStorageConfiguration();
+  const storage = await getStorageConfiguration(userEmail);
   if (!storage) {
     throw new Error("Storage configuration is missing. Configure S3/CloudFront in admin first.");
   }
@@ -58,7 +58,7 @@ export async function uploadDocument(
     ? `https://${storage.cloudFrontDomain}/${storageKey}`
     : undefined;
 
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
   return client.mutation(api.documents.mutations.createUploadedDocument, {
     userId,
     entityId: asId<"entities">(entityId),

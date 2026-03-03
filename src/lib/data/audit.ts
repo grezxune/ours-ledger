@@ -1,7 +1,7 @@
 import "server-only";
 import { api } from "@convex/_generated/api";
 import type { AuditEvent, AuditEventDetail } from "@/lib/domain/types";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { ensureUser } from "@/lib/data/users";
 
 interface AuditInput {
@@ -17,7 +17,7 @@ interface AuditInput {
  */
 export async function recordAuditEvent(input: AuditInput): Promise<void> {
   const user = await ensureUser(input.actorEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(input.actorEmail);
 
   await client.mutation(api.audit.mutations.record, {
     actorUserId: asId<"users">(user.id),
@@ -33,7 +33,7 @@ export async function recordAuditEvent(input: AuditInput): Promise<void> {
  */
 export async function listAuditEvents(userEmail: string, limit = 20): Promise<AuditEvent[]> {
   const user = await ensureUser(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
   return client.query(api.audit.queries.listRecent, {
     userId: asId<"users">(user.id),
     limit,
@@ -48,7 +48,7 @@ export async function getAuditEventDetail(
   auditEventId: string,
 ): Promise<AuditEventDetail> {
   const user = await ensureUser(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
   return client.query(api.audit.queries.getById, {
     userId: asId<"users">(user.id),
     auditEventId: asId<"auditEvents">(auditEventId),

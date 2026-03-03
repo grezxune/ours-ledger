@@ -1,4 +1,4 @@
-import { query } from "../_generated/server";
+import { authenticatedQuery } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { requireMembership } from "../lib/permissions";
 
@@ -31,7 +31,7 @@ function mapDocument(document: {
 /**
  * Lists documents for an authorized entity member.
  */
-export const listByEntity = query({
+export const listByEntity = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

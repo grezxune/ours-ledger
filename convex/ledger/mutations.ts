@@ -1,4 +1,4 @@
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { recordAuditEvent } from "../lib/audit";
 import { requireMembership } from "../lib/permissions";
@@ -62,7 +62,7 @@ function mapTransaction(transaction: {
 /**
  * Creates a manual transaction with entity-scoped authorization.
  */
-export const create = mutation({
+export const create = authenticatedMutation({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

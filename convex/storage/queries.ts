@@ -1,4 +1,4 @@
-import { query } from "../_generated/server";
+import { superAdminIdentityQuery } from "../lib/authFunctions";
 
 function mapStorageConfig(config: {
   _id: string;
@@ -23,7 +23,7 @@ function mapStorageConfig(config: {
 /**
  * Returns the active storage configuration.
  */
-export const getActive = query({
+export const getActive = superAdminIdentityQuery({
   args: {},
   handler: async (ctx) => {
     const configs = await ctx.db.query("storageConfigurations").collect();

@@ -1,7 +1,7 @@
 import "server-only";
 import { api } from "@convex/_generated/api";
 import type { BudgetPeriod, EntityBudget } from "@/lib/domain/types";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { ensureUser } from "@/lib/data/users";
 
 async function requireUserId(userEmail: string) {
@@ -14,7 +14,7 @@ async function requireUserId(userEmail: string) {
  */
 export async function listEntityBudgets(userEmail: string, entityId: string): Promise<EntityBudget[]> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.budgets.queries.listByEntity, {
     userId,
@@ -31,7 +31,7 @@ export async function createEntityBudget(
   input: { name: string; period: BudgetPeriod; effectiveDate: string },
 ): Promise<string> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.mutation(api.budgets.mutations.createBudget, {
     userId,
@@ -49,7 +49,7 @@ export async function addBudgetIncomeSource(
   input: { name: string; amountCents: number; cadence: BudgetPeriod; notes?: string },
 ): Promise<string> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.mutation(api.budgets.mutations.addIncomeSource, {
     userId,
@@ -67,7 +67,7 @@ export async function updateBudgetIncomeSource(
   input: { name: string; amountCents: number; cadence: BudgetPeriod; notes?: string },
 ): Promise<void> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   await client.mutation(api.budgets.incomeMutations.updateIncomeSource, {
     userId,
@@ -92,7 +92,7 @@ export async function addBudgetRecurringExpense(
   },
 ): Promise<string> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.mutation(api.budgets.mutations.addRecurringExpense, {
     userId,
@@ -121,7 +121,7 @@ export async function updateBudgetRecurringExpense(
   },
 ): Promise<void> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   await client.mutation(api.budgets.incomeMutations.updateRecurringExpense, {
     userId,
@@ -139,7 +139,7 @@ export async function updateBudgetRecurringExpense(
  */
 export async function removeBudgetIncomeSource(userEmail: string, incomeSourceId: string): Promise<void> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   await client.mutation(api.budgets.mutations.removeIncomeSource, {
     userId,
@@ -152,7 +152,7 @@ export async function removeBudgetIncomeSource(userEmail: string, incomeSourceId
  */
 export async function removeBudgetRecurringExpense(userEmail: string, recurringExpenseId: string): Promise<void> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   await client.mutation(api.budgets.mutations.removeRecurringExpense, {
     userId,

@@ -1,7 +1,7 @@
 import "server-only";
 import { api } from "@convex/_generated/api";
 import type { Entity, EntityAddress, EntityType, Membership } from "@/lib/domain/types";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { ensureUser } from "@/lib/data/users";
 
 interface EntityInput {
@@ -31,7 +31,7 @@ export async function listEntitiesForUser(
   userEmail: string,
 ): Promise<Array<{ entity: Entity; membership: Membership }>> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
   return client.query(api.entities.queries.listForUser, { userId });
 }
 
@@ -40,7 +40,7 @@ export async function listEntitiesForUser(
  */
 export async function requireMembership(userEmail: string, entityId: string): Promise<Membership> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.entities.queries.getMembershipForUser, {
     userId,
@@ -53,7 +53,7 @@ export async function requireMembership(userEmail: string, entityId: string): Pr
  */
 export async function requireOwner(userEmail: string, entityId: string): Promise<Membership> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.entities.queries.requireOwnerForUser, {
     userId,
@@ -66,7 +66,7 @@ export async function requireOwner(userEmail: string, entityId: string): Promise
  */
 export async function listMembersForEntity(userEmail: string, entityId: string): Promise<Membership[]> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.entities.queries.listMembersForEntity, {
     userId,
@@ -79,7 +79,7 @@ export async function listMembersForEntity(userEmail: string, entityId: string):
  */
 export async function createEntity(ownerEmail: string, input: EntityInput): Promise<Entity> {
   const userId = await requireUserId(ownerEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(ownerEmail);
   return client.mutation(api.entities.mutations.create, { userId, input });
 }
 
@@ -88,7 +88,7 @@ export async function createEntity(ownerEmail: string, input: EntityInput): Prom
  */
 export async function getEntityForUser(userEmail: string, entityId: string): Promise<Entity> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.entities.queries.getForUser, {
     userId,
@@ -105,7 +105,7 @@ export async function updateEntity(
   input: UpdateEntityInput,
 ): Promise<Entity> {
   const userId = await requireUserId(ownerEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(ownerEmail);
 
   return client.mutation(api.entities.mutations.update, {
     userId,

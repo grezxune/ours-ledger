@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import type { Id } from "../_generated/dataModel";
 import type { MutationCtx } from "../_generated/server";
 import { recordAuditEvent } from "../lib/audit";
@@ -49,7 +49,7 @@ function requirePositiveAmount(amountCents: number) {
   }
 }
 
-export const createBudget = mutation({
+export const createBudget = authenticatedMutation({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),
@@ -87,7 +87,7 @@ export const createBudget = mutation({
   },
 });
 
-export const addIncomeSource = mutation({
+export const addIncomeSource = authenticatedMutation({
   args: {
     userId: v.id("users"),
     budgetId: v.id("entityBudgets"),
@@ -120,7 +120,7 @@ export const addIncomeSource = mutation({
   },
 });
 
-export const addRecurringExpense = mutation({
+export const addRecurringExpense = authenticatedMutation({
   args: {
     userId: v.id("users"),
     budgetId: v.id("entityBudgets"),

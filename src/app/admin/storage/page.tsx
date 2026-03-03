@@ -16,10 +16,14 @@ interface StorageAdminPageProps {
  */
 export default async function StorageAdminPage({ searchParams }: StorageAdminPageProps) {
   const session = await requireSuperAdminSession();
+  const email = session.user?.email?.toLowerCase();
+  if (!email) {
+    throw new Error("Session missing email.");
+  }
   const params = await searchParams;
   const status = typeof params.status === "string" ? params.status : null;
   const account = typeof params.account === "string" ? params.account : null;
-  const storage = await getStorageConfiguration();
+  const storage = await getStorageConfiguration(email);
 
   return (
     <AppShell session={session}>

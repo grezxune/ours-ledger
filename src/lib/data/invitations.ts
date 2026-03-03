@@ -1,7 +1,7 @@
 import "server-only";
 import { api } from "@convex/_generated/api";
 import type { Invitation, MembershipRole } from "@/lib/domain/types";
-import { asId, createConvexClient } from "@/lib/data/convex";
+import { asId, createAuthenticatedConvexClient } from "@/lib/data/convex";
 import { ensureUser } from "@/lib/data/users";
 
 async function requireUserId(userEmail: string) {
@@ -14,7 +14,7 @@ async function requireUserId(userEmail: string) {
  */
 export async function listEntityInvitations(userEmail: string, entityId: string): Promise<Invitation[]> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.query(api.invitations.queries.listEntityInvitations, {
     userId,
@@ -27,7 +27,7 @@ export async function listEntityInvitations(userEmail: string, entityId: string)
  */
 export async function listUserInvitations(userEmail: string): Promise<Invitation[]> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
   return client.query(api.invitations.queries.listUserInvitations, { userId });
 }
 
@@ -41,7 +41,7 @@ export async function createInvitation(
   role: MembershipRole,
 ): Promise<Invitation> {
   const userId = await requireUserId(ownerEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(ownerEmail);
 
   return client.mutation(api.invitations.mutations.create, {
     userId,
@@ -56,7 +56,7 @@ export async function createInvitation(
  */
 export async function acceptInvitation(userEmail: string, invitationId: string): Promise<Invitation> {
   const userId = await requireUserId(userEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(userEmail);
 
   return client.mutation(api.invitations.mutations.accept, {
     userId,
@@ -69,7 +69,7 @@ export async function acceptInvitation(userEmail: string, invitationId: string):
  */
 export async function revokeInvitation(ownerEmail: string, invitationId: string): Promise<Invitation> {
   const userId = await requireUserId(ownerEmail);
-  const client = createConvexClient();
+  const client = await createAuthenticatedConvexClient(ownerEmail);
 
   return client.mutation(api.invitations.mutations.revoke, {
     userId,

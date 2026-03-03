@@ -12,6 +12,7 @@ export default async function SignInPage() {
   if (session?.user?.email) {
     redirect("/");
   }
+  const showDeveloperAccess = process.env.NODE_ENV !== "production";
 
   return (
     <AppShell session={session}>
@@ -39,10 +40,11 @@ export default async function SignInPage() {
 
         <Card className="reveal-up reveal-delay-1" title="Welcome Back">
           <p className="text-sm text-foreground/80">
-            Sign in with Google for standard access, or use developer credentials for local testing.
+            Sign in with Google for standard access
+            {showDeveloperAccess ? ", or use developer credentials for local testing." : "."}
           </p>
           <div className="mt-5">
-            <SignInForm />
+            <SignInForm showDeveloperAccess={showDeveloperAccess} />
           </div>
         </Card>
       </div>

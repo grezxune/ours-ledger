@@ -1,4 +1,4 @@
-import { mutation } from "../_generated/server";
+import { authenticatedMutation } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { recordAuditEvent } from "../lib/audit";
 import { requireOwner } from "../lib/permissions";
@@ -29,7 +29,7 @@ function mapInvitation(invitation: {
 /**
  * Creates owner-issued invitations.
  */
-export const create = mutation({
+export const create = authenticatedMutation({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),
@@ -84,7 +84,7 @@ export const create = mutation({
 /**
  * Accepts a pending invitation and binds membership.
  */
-export const accept = mutation({
+export const accept = authenticatedMutation({
   args: {
     userId: v.id("users"),
     invitationId: v.id("invitations"),
@@ -134,7 +134,7 @@ export const accept = mutation({
 /**
  * Revokes a pending invitation.
  */
-export const revoke = mutation({
+export const revoke = authenticatedMutation({
   args: {
     userId: v.id("users"),
     invitationId: v.id("invitations"),

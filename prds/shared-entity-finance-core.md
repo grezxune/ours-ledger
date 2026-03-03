@@ -9,6 +9,7 @@ log:
   - 2026-02-19: Added document upload roadmap and super_admin AWS storage/distribution setup requirements
   - 2026-02-19: Added Auth.js-only auth requirement and financial security architecture constraints
   - 2026-02-19: Implemented MVP scaffold (Auth.js auth, entity routes, invites, ledger transactions, document upload, and super_admin storage setup)
+  - 2026-03-03: Hardened auth architecture with Convex custom JWT actor binding, wrapper-based public function authorization, and super_admin enforcement in Convex storage paths
 ---
 
 ## Problem
@@ -106,6 +107,9 @@ MVP (Phase 1):
 - Initial provider is Google Sign-In via Auth.js.
 - Session and token validation are server-side only.
 - Session cookies must be secure, HTTP-only, and same-site constrained.
+- Convex public queries/mutations must validate identity via `ctx.auth.getUserIdentity()` and bind to canonical `userId`.
+- Convex callers must use short-lived server-minted JWTs backed by RS256 + JWKS (`convex/auth.config.ts`).
+- Shared wrapper functions (`authenticatedQuery` / `authenticatedMutation` / `superAdmin*`) are required for deny-by-default authorization.
 - Sensitive mutations (role changes, payouts, storage setup) require fresh server-verified auth context.
 - All authorization decisions must bind authenticated user identity to requested entity/resource.
 

@@ -1,11 +1,11 @@
 import { v } from "convex/values";
-import { query } from "../_generated/server";
+import { authenticatedQuery } from "../lib/authFunctions";
 import { requireMembership } from "../lib/permissions";
 
 /**
  * Lists expense categories configured for an entity.
  */
-export const listByEntity = query({
+export const listByEntity = authenticatedQuery({
   args: {
     userId: v.id("users"),
     entityId: v.id("entities"),

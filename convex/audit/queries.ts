@@ -1,4 +1,4 @@
-import { query } from "../_generated/server";
+import { authenticatedQuery } from "../lib/authFunctions";
 import { v } from "convex/values";
 import { canViewAuditEvent, getAuditViewer, resolveAuditDetail } from "./detail";
 
@@ -25,7 +25,7 @@ function mapAuditEvent(event: {
 /**
  * Returns most recent audit events for dashboard visibility.
  */
-export const listRecent = query({
+export const listRecent = authenticatedQuery({
   args: {
     userId: v.id("users"),
     limit: v.optional(v.number()),
@@ -46,7 +46,7 @@ export const listRecent = query({
 /**
  * Returns one audit event plus resolved target/entity context.
  */
-export const getById = query({
+export const getById = authenticatedQuery({
   args: {
     userId: v.id("users"),
     auditEventId: v.id("auditEvents"),

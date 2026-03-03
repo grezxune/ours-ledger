@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.57] - 2026-03-03
+
+- Hardened Convex authorization by introducing shared wrapper-based guards (`authenticated*` and `superAdmin*`) and applying them across public queries/mutations.
+- Added Convex custom JWT auth provider config (`convex/auth.config.ts`) with RS256 validation against a new JWKS endpoint at `/api/auth/convex/jwks`.
+- Added server-side Convex actor token minting (`src/lib/auth/convex-token.ts`) and switched all server data access modules to authenticated Convex clients.
+- Removed insecure Auth.js secret fallback behavior and now fail closed when neither `NEXTAUTH_SECRET` nor `AUTH_SECRET` is configured.
+- Restricted developer credentials provider to non-production and removed default passphrase fallback.
+- Hardened user upsert/audit/storage flows to rely on authenticated identity and server-authorized `userId` binding.
+- Added unit/integration coverage for Convex JWT minting and JWKS route responses.
+
 ## [0.2.56] - 2026-02-26
 
 - Added the same mobile responsive pattern to planned income sources as recurring expenses: stacked mobile list rows and stacked mobile creation form.
