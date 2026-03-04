@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BadgePlus, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InputField, SelectField, TextareaField } from "@/components/ui/field";
@@ -51,6 +51,17 @@ export function TransactionEntryForm({
   const [selectedCategoryId, setSelectedCategoryId] = useState(
     managedCategories[0]?.id || ADD_EXPENSE_CATEGORY_OPTION,
   );
+
+  useEffect(() => {
+    setManagedCategories(expenseCategories);
+  }, [expenseCategories]);
+
+  useEffect(() => {
+    if (managedCategories.some((category) => category.id === selectedCategoryId)) {
+      return;
+    }
+    setSelectedCategoryId(managedCategories[0]?.id || ADD_EXPENSE_CATEGORY_OPTION);
+  }, [managedCategories, selectedCategoryId]);
 
   function upsertCategory(collection: NamedEntityOption[], item: NamedEntityOption): NamedEntityOption[] {
     const existingIndex = collection.findIndex((entry) => entry.id === item.id);

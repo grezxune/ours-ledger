@@ -15,6 +15,8 @@ describe("select field", () => {
 
     expect(html).toContain("pr-11");
     expect(html).toContain("right-3");
+    expect(html).toContain("truncate");
+    expect(html).toContain('title="US Dollar"');
     expect(html).toContain("US Dollar");
     expect(html).toContain('name="currency"');
   });

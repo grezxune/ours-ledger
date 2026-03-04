@@ -26,6 +26,8 @@ log:
   - 2026-02-26: Added responsive recurring-planned-expense mobile fallback layouts to prevent horizontal overflow and keep creation/edit actions usable on small screens.
   - 2026-02-26: Brought planned-income responsive behavior into parity with recurring-expense patterns (stacked mobile rows/forms + compact desktop table rows).
   - 2026-03-03: Added requirement that all successful budget mutations redirect with success toasts for explicit confirmation and form reset behavior.
+  - 2026-03-04: Replaced redirect-after-save requirement for in-place budget edits with reactive Convex queries and optimistic client mutations for immediate visual updates.
+  - 2026-03-04: Aligned with app-wide architecture guardrails that prohibit reintroducing route-level server-action mutation handlers.
 ---
 
 ## Problem
@@ -174,7 +176,9 @@ Core journeys:
   - no budget created
   - budget with zero items
   - invalid amount/cadence
-- All successful budget actions (create/update/remove) must redirect with success toast metadata so users receive confirmation and forms reset cleanly.
+- Budget create/update/remove actions within the budget workspace must update in place via reactive queries and optimistic client mutations (no mandatory page redirect).
+- Successful actions must still provide accessible confirmation feedback without forcing route-level reloads.
+- Route-level server actions are disallowed for budget mutations; only client mutation flows (or explicit API routes for external side effects) are permitted.
 - Include entity navigation with dedicated sections for:
   - Budget
   - Transactions

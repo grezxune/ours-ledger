@@ -11,6 +11,8 @@ log:
   - 2026-02-19: Implemented MVP scaffold (Auth.js auth, entity routes, invites, ledger transactions, document upload, and super_admin storage setup)
   - 2026-03-03: Hardened auth architecture with Convex custom JWT actor binding, wrapper-based public function authorization, and super_admin enforcement in Convex storage paths
   - 2026-03-03: Standardized post-submit UX to redirect successful mutations with route-level success toasts and visible state transitions
+  - 2026-03-04: Shifted core save UX architecture to client-side Convex mutations + reactive queries with optimistic updates for immediate feedback and reduced redirect latency
+  - 2026-03-04: Completed app-wide migration to live client flows (dashboard invites, entity overview, audits, storage admin) and added lint/test guardrails preventing new server-action route patterns
 ---
 
 ## Problem
@@ -153,8 +155,10 @@ MVP (Phase 1):
 
 ### Post-submit UX Feedback (Global)
 - Successful form submissions must always produce visible success feedback through branded, accessible toast notifications.
-- Success paths should redirect to the destination view with a toast signal, then clear ephemeral toast metadata from the URL.
-- Redirect targets must reflect the completed task state (for example, after entity creation, open the created entity view).
+- Save/update/delete flows inside an already open workspace should use client mutations plus optimistic UI instead of full redirect roundtrips.
+- Success paths should preserve in-progress page context and render confirmation without blocking on route navigation.
+- Redirects remain valid for cross-route transitions (for example, create flows that navigate to a newly created resource).
+- Route-level server actions (`src/app/**/actions.ts`, `"use server"` form handlers) are prohibited for product workflows; enforce this with repository linting and automated architecture tests.
 
 Phase 2:
 

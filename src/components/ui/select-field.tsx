@@ -239,7 +239,7 @@ export function SelectField({
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-label={`Select ${label}`}
-          className={`w-full ${cornersClass} border border-line bg-surface px-3 py-2 pr-11 text-left text-sm outline-none ring-accent transition focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-70 ${className || ""}`}
+          className={`flex w-full items-center justify-start overflow-hidden ${cornersClass} border border-line bg-surface px-3 py-2 pr-11 text-left text-sm outline-none ring-accent transition focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-70 ${className || ""}`}
           disabled={disabled || options.length === 0}
           id={buttonId}
           onClick={() => {
@@ -247,9 +247,10 @@ export function SelectField({
             setIsOpen((open) => !open);
           }}
           onKeyDown={handleTriggerKeyDown}
+          title={selectedOption?.label || "Select an option"}
           type="button"
         >
-          {selectedOption?.label || "Select an option"}
+          <span className="min-w-0 flex-1 truncate">{selectedOption?.label || "Select an option"}</span>
         </button>
 
         <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-foreground/70" aria-hidden>
@@ -282,19 +283,20 @@ export function SelectField({
                     <button
                       aria-selected={option.value === selectedValue}
                       aria-label={`Choose ${option.label}`}
-                      className={`w-full rounded-lg px-2 py-2 text-left text-sm ${isAddSelectActionOption(option) ? "font-medium text-accent" : ""} ${index === activeIndex ? "bg-foreground/10" : "hover:bg-foreground/5"}`}
+                      className={`w-full overflow-hidden rounded-lg px-2 py-2 text-left text-sm ${isAddSelectActionOption(option) ? "font-medium text-accent" : ""} ${index === activeIndex ? "bg-foreground/10" : "hover:bg-foreground/5"}`}
                       onClick={() => commitValue(option.value)}
                       onMouseEnter={() => setActiveIndex(index)}
                       role="option"
+                      title={option.label}
                       type="button"
                     >
                       {isAddSelectActionOption(option) ? (
-                        <span className="inline-flex items-center gap-2">
+                        <span className="inline-flex w-full min-w-0 items-center gap-2">
                           <CirclePlus aria-hidden className="size-4" />
-                          <span>{option.label}</span>
+                          <span className="truncate">{option.label}</span>
                         </span>
                       ) : (
-                        option.label
+                        <span className="block truncate">{option.label}</span>
                       )}
                     </button>
                   </li>

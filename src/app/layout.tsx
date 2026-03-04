@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
+import { ConvexAuthProvider } from "@/components/layout/convex-auth-provider";
 import { GlobalParallaxBackground } from "@/components/layout/global-parallax-background";
 import "./globals.css";
 
@@ -42,7 +43,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GlobalParallaxBackground />
-        <div className="relative z-10">{children}</div>
+        <ConvexAuthProvider>
+          <div className="relative z-10">{children}</div>
+        </ConvexAuthProvider>
       </body>
     </html>
   );

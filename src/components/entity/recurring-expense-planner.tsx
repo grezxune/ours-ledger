@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CirclePlus, Save, X } from "lucide-react";
 import { AddAccountModal } from "@/components/entity/add-account-modal";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,34 @@ export function RecurringExpensePlanner({
     managedCategories[0]?.id || ADD_EXPENSE_CATEGORY_OPTION,
   );
   const [categoryError, setCategoryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setManagedAccounts(accounts.map((account) => ({ id: account.id, name: account.name, source: account.source })));
+  }, [accounts]);
+
+  useEffect(() => {
+    setManagedInstitutions(institutions);
+  }, [institutions]);
+
+  useEffect(() => {
+    setManagedCategories(expenseCategories);
+  }, [expenseCategories]);
+
+  useEffect(() => {
+    if (managedAccounts.some((account) => account.id === selectedAccountId)) {
+      return;
+    }
+
+    setSelectedAccountId(managedAccounts[0]?.id || ADD_ACCOUNT_OPTION);
+  }, [managedAccounts, selectedAccountId]);
+
+  useEffect(() => {
+    if (managedCategories.some((category) => category.id === selectedCategoryId)) {
+      return;
+    }
+
+    setSelectedCategoryId(managedCategories[0]?.id || ADD_EXPENSE_CATEGORY_OPTION);
+  }, [managedCategories, selectedCategoryId]);
 
   function upsertNamedOption(
     collection: NamedEntityOption[],

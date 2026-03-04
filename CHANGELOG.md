@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.60] - 2026-03-04
+
+- Completed the app-wide migration away from route-level server actions to live Convex client patterns: dashboard invite acceptance, entity overview, audits index/detail, and super-admin storage configuration now run through reactive queries plus client-side submission/mutation flows.
+- Added API route handlers for non-Convex side effects that still require server execution (`/api/admin/storage/configure` and entity document upload route) so interactive forms remain instant without redirect roundtrips.
+- Removed legacy `src/app/**/actions.ts` files and added architecture guardrails to prevent regressions:
+  - ESLint restriction that forbids `"use server"` directives in `src`.
+  - Automated test coverage that fails if route action modules or server-action directives reappear in non-API app routes.
+
+## [0.2.59] - 2026-03-04
+
+- Added a client-side Auth.js-to-Convex bridge: global `ConvexAuthProvider`, a new token endpoint (`/api/auth/convex/token`), and a shared `useAuthUser` hook for canonical `userId` binding in client queries/mutations.
+- Migrated entity transactions from server-action redirects to reactive Convex client queries + client mutations with optimistic updates, so saves render immediately in-place.
+- Migrated the entity budget workspace to reactive Convex client queries and client mutations with optimistic updates for budget/income/recurring-expense operations, removing post-save redirect latency in that workflow.
+- Kept success confirmation UX by updating the existing query-driven toast signal client-side (no full page reload required).
+- Added unit/integration coverage for the new Convex token endpoint identity derivation and HTTP behavior.
+
 ## [0.2.58] - 2026-03-03
 
 - Added a shared query-driven toast system (`ToastCenter`) inside `AppShell` to provide consistent post-submit success feedback across routes.
