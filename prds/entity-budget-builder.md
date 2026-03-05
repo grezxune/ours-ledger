@@ -29,6 +29,7 @@ log:
   - 2026-03-04: Replaced redirect-after-save requirement for in-place budget edits with reactive Convex queries and optimistic client mutations for immediate visual updates.
   - 2026-03-04: Aligned with app-wide architecture guardrails that prohibit reintroducing route-level server-action mutation handlers.
   - 2026-03-04: Added recurring planned expense `autoPay` toggle support so users can mark expenses that are automatically pulled each cycle.
+  - 2026-03-04: Updated modal behavior so successful budget edit/delete confirmations close active modals immediately.
 ---
 
 ## Problem
@@ -171,6 +172,7 @@ Core journeys:
 - Inline planned-entry fields should remain square in all states (no rounded corners when focused or unfocused).
 - Inline planned-entry focus states should use bottom-border-only emphasis (no full-border/ring focus outlines).
 - Shared modal workflows (including inline create modals) must open centered on all viewport sizes.
+- Successful modal save/confirm actions in budget workflows must close the modal immediately; failed submissions must keep the modal open and show errors.
 - Shared select menus used in budget flows should render via `document.body` portal overlays, auto-flip up/down to stay visible, and support keyboard type-to-jump option matching.
 - Recurring planned expense displays and creation rows must gracefully stack on small screens instead of requiring horizontal scrolling.
 - Planned income displays and creation rows must follow the same responsive breakpoint strategy/pattern family as recurring planned expenses.

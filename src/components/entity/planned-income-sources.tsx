@@ -45,6 +45,14 @@ export function PlannedIncomeSources({
     setEditingIncomeSourceId(null);
   }
 
+  async function handleUpdateIncomeSource(formData: FormData) {
+    if (!editingIncomeSource) {
+      throw new Error("Income source not found.");
+    }
+    await updateIncomeSourceAction(editingIncomeSource.id, formData);
+    closeEditModal();
+  }
+
   return (
     <section className="mt-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -242,7 +250,7 @@ export function PlannedIncomeSources({
 
       <Modal onClose={closeEditModal} open={Boolean(editingIncomeSource)} title="Edit income source">
         {editingIncomeSource ? (
-          <form action={updateIncomeSourceAction.bind(null, editingIncomeSource.id)} className="grid gap-3" key={`edit-${editingIncomeSource.id}`}>
+          <form action={handleUpdateIncomeSource} className="grid gap-3" key={`edit-${editingIncomeSource.id}`}>
             <div className="grid gap-3 sm:grid-cols-2">
               <InputField defaultValue={editingIncomeSource.name} label="Source Name" name="name" required />
               <InputField

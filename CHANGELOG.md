@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.63] - 2026-03-05
+
+- Added a shared custom `CheckboxField` UI primitive with consistent themed styling, focus states, and native form semantics.
+- Replaced all feature-level raw checkbox inputs with `CheckboxField` across storage admin and recurring expense create/edit flows.
+- Added unit and integration coverage for the new checkbox component.
+
+## [0.2.62] - 2026-03-04
+
+- Updated modal submit behavior so successful budget edit saves close the modal immediately (planned income and recurring expense edit dialogs).
+- Updated shared confirmation modal form-submit path to auto-close after successful confirmation actions.
+
 ## [0.2.61] - 2026-03-04
 
 - Added recurring planned expense `Auto Pay` support end-to-end so each expense can be marked as automatically pulled or manual.

@@ -36,6 +36,12 @@ export function ConfirmationModal({
   confirmFormAction,
   onConfirm,
 }: ConfirmationModalProps) {
+  async function handleConfirmFormAction(formData: FormData) {
+    if (!confirmFormAction) return;
+    await confirmFormAction(formData);
+    onClose();
+  }
+
   return (
     <Modal onClose={onClose} open={open} title={title}>
       <p className="text-sm text-foreground/80">{description}</p>
@@ -44,7 +50,7 @@ export function ConfirmationModal({
           {cancelLabel}
         </Button>
         {confirmFormAction ? (
-          <form action={confirmFormAction}>
+          <form action={handleConfirmFormAction}>
             <Button
               ariaLabel={confirmLabel}
               startIcon={confirmIcon}

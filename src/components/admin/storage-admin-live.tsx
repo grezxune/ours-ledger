@@ -9,7 +9,7 @@ import { api } from "@convex/_generated/api";
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { InputField } from "@/components/ui/field";
+import { CheckboxField, InputField } from "@/components/ui/field";
 import { useToastSignal } from "@/hooks/use-toast-signal";
 import type { StorageConfiguration } from "@/lib/domain/types";
 
@@ -94,10 +94,12 @@ export function StorageAdminLive({ session }: StorageAdminLiveProps) {
               name="cloudFrontDomain"
             />
           </div>
-          <label className="sm:col-span-2 inline-flex items-center gap-2 text-sm">
-            <input defaultChecked type="checkbox" name="createBucketIfMissing" />
-            Create bucket if missing and enforce encryption/versioning.
-          </label>
+          <CheckboxField
+            className="sm:col-span-2"
+            defaultChecked
+            label="Create bucket if missing and enforce encryption/versioning."
+            name="createBucketIfMissing"
+          />
           <div className="sm:col-span-2">
             <Button
               ariaLabel="Validate and save storage configuration"

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CirclePlus, Save, X } from "lucide-react";
 import { AddAccountModal } from "@/components/entity/add-account-modal";
 import { Button } from "@/components/ui/button";
-import { InputField, SelectField } from "@/components/ui/field";
+import { CheckboxField, InputField, SelectField } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { BUDGET_PERIOD_OPTIONS } from "@/lib/domain/options";
 import {
@@ -216,14 +216,7 @@ export function RecurringExpensePlanner({
             type="number"
           />
         </div>
-        <label className="inline-flex items-center gap-2 text-sm font-medium text-foreground/90">
-          <input
-            className="size-4 rounded border border-line bg-surface accent-accent"
-            name="autoPay"
-            type="checkbox"
-          />
-          <span>Auto Pay</span>
-        </label>
+        <CheckboxField label="Auto Pay" name="autoPay" />
         <InputField label="Notes" name="notes" placeholder="Notes (optional)" />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-foreground/75">
@@ -325,15 +318,12 @@ export function RecurringExpensePlanner({
                 />
               </td>
               <td className="w-[10%] px-1 py-1.5">
-                <label className="inline-flex h-8 items-center gap-2 text-xs font-medium text-foreground/85">
-                  <input
-                    className="size-4 rounded border border-line bg-surface accent-accent"
-                    form="add-recurring-expense-form"
-                    name="autoPay"
-                    type="checkbox"
-                  />
-                  <span>Auto Pay</span>
-                </label>
+                <CheckboxField
+                  className="h-8 text-xs text-foreground/85"
+                  form="add-recurring-expense-form"
+                  label="Auto Pay"
+                  name="autoPay"
+                />
               </td>
               <td className="w-10 px-1 py-1.5 pr-0">
                 <div className="flex justify-end">

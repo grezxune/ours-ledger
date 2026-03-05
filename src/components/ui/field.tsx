@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { CheckboxField } from "@/components/ui/checkbox-field";
 import { SelectField } from "@/components/ui/select-field";
 
 type CornerStyle = "default" | "none";
@@ -60,3 +61,4 @@ export function TextareaField({
 }
 
 export { SelectField };
+export { CheckboxField };

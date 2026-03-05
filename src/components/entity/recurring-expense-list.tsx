@@ -5,7 +5,7 @@ import { Pencil, Save, Trash2, X } from "lucide-react";
 import { ActionMenu, type ActionMenuItem } from "@/components/ui/action-menu";
 import { Button } from "@/components/ui/button";
 import { ConfirmationModal } from "@/components/ui/confirmation-modal";
-import { InputField, SelectField, TextareaField } from "@/components/ui/field";
+import { CheckboxField, InputField, SelectField, TextareaField } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { formatIncomeCurrency, toAmountInputValue, toCadenceLabel } from "@/components/entity/planned-income-source-format";
 import { BUDGET_PERIOD_OPTIONS } from "@/lib/domain/options";
@@ -94,6 +94,14 @@ export function RecurringExpenseList({
 
   function closeEditModal() {
     setEditingRecurringExpenseId(null);
+  }
+
+  async function handleUpdateRecurringExpense(formData: FormData) {
+    if (!editingRecurringExpense) {
+      throw new Error("Recurring expense not found.");
+    }
+    await updateRecurringExpenseAction(editingRecurringExpense.id, formData);
+    closeEditModal();
   }
 
   return (
@@ -206,7 +214,7 @@ export function RecurringExpenseList({
       <Modal onClose={closeEditModal} open={Boolean(editingRecurringExpense)} title="Edit recurring expense">
         {editingRecurringExpense ? (
           <form
-            action={updateRecurringExpenseAction.bind(null, editingRecurringExpense.id)}
+            action={handleUpdateRecurringExpense}
             className="grid gap-3"
             key={`edit-${editingRecurringExpense.id}`}
           >
@@ -242,15 +250,7 @@ export function RecurringExpenseList({
                 options={[...BUDGET_PERIOD_OPTIONS]}
               />
             </div>
-            <label className="inline-flex items-center gap-2 text-sm font-medium text-foreground/90">
-              <input
-                className="size-4 rounded border border-line bg-surface accent-accent"
-                defaultChecked={editingRecurringExpense.autoPay}
-                name="autoPay"
-                type="checkbox"
-              />
-              <span>Auto Pay</span>
-            </label>
+            <CheckboxField defaultChecked={editingRecurringExpense.autoPay} label="Auto Pay" name="autoPay" />
             <TextareaField defaultValue={editingRecurringExpense.notes || ""} label="Notes" name="notes" rows={2} />
             {!canSubmitEdit ? (
               <p className="text-sm text-red-500">Add at least one account and expense category before saving changes.</p>
